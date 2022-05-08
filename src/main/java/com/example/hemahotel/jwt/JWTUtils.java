@@ -40,6 +40,7 @@ public class JWTUtils {
 
         String token = builder.withExpiresAt(instance.getTime())  //指定令牌过期时间
                 .sign(Algorithm.HMAC256(SING));  // 设置加密算法
+
         return token;
     }
 

@@ -8,6 +8,6 @@ public class InterceptorConfig implements WebMvcConfigurer {
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(new JWTInterceptors())
                 .addPathPatterns("/user/test")  //用于设置拦截器的过滤路径规则
-                .excludePathPatterns("/user/login");  //用于设置不需要拦截的过滤规则
+                .excludePathPatterns("/api/user/login/password");  //用于设置不需要拦截的过滤规则
     }
 }
