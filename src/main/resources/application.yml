@@ -2,8 +2,17 @@ server:
  port: 8080
 
 spring:
+  #数据库配置
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://47.115.219.185:3306/hotel?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai
     username: root
     password: 123456
+
+  data:
+    #Spring Data JPA配置
+    jpa:
+      database: MySQL
+      hibernate:
+        ddl-auto: update
+        show-sql: true
