@@ -37,7 +37,19 @@ public class UserController {
         return map;
     }
 
-    //用户登录接口(手机号/邮箱+密码)
+    /**用户注册接口*/
+    @PostMapping("/register")
+    public ResponseUtils register(@RequestBody JSONObject jsonObject) {
+
+        String telephone = jsonObject.getString("telephone");
+        String password = jsonObject.getString("password");
+        String verCode = jsonObject.getString("verCode");
+        Long verCodeId = jsonObject.getLong("verCodeId");
+
+        return userService.register(telephone,password,verCode,verCodeId);
+    }
+
+    /**用户登录接口(手机号/邮箱+密码)*/
     @PostMapping("/login/password")
     public ResponseUtils Login_Password(@RequestBody JSONObject jsonObject) {
 
@@ -47,5 +59,15 @@ public class UserController {
         return userService.Login_Password(teleEmail,password);
     }
 
+    /**用户主页接口*/
+    @PostMapping("/information")
+    public ResponseUtils information(HttpServletRequest request) {
+        //从token中获取id
+        String token = request.getHeader("token");
+
+        Long id = Long.valueOf(JWTUtils.getUserId(token));
+
+        return userService.information(id);
+    }
 
 }

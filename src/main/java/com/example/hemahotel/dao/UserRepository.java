@@ -12,8 +12,11 @@ import java.util.Optional;
 // ID:实体类主键的类型
 public interface UserRepository extends JpaRepository<User,Long> {
 
-    Optional<User> findByEmail(String Email);
+    Optional<User> findByEmail(String email);
 
     Optional<User> findByPhone(String phone);
+
+    Optional<User> findByPhoneOrEmail(String phone,String email);
+
 
 }

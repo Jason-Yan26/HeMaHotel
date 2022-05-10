@@ -1,4 +1,8 @@
 package com.example.hemahotel.dao;
 
-public interface VerificationRepository extends org.springframework.data.jpa.repository.JpaRepository<com.example.hemahotel.entity.Verification, java.lang.Long> {
+import com.example.hemahotel.entity.Verification;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface VerificationRepository extends JpaRepository<Verification,Long> {
+
 }

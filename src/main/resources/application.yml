@@ -16,3 +16,19 @@ spring:
       hibernate:
         ddl-auto: update
         show-sql: true
+
+  #email相关配置
+  mail:
+    host: smtp.qq.com
+    username: 459155106@qq.com #邮箱账号
+    password: qbkfeghgrpfybgge  #注意：POP3/SMTP服务授权码，不是密码
+    default-encoding: UTF-8
+    properties:
+      mail:
+        debug: false
+        smtp:
+          auth: true
+          socketFactory:
+            port: 587
+          ssl:
+            enable: true
