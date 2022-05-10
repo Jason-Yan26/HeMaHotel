@@ -61,7 +61,7 @@ public class JWTUtils {
             DecodedJWT jwt = JWT.decode(token);
             return jwt.getClaim("id").asString();
         } catch (JWTDecodeException e) {
-            return null;
+            return "0";
         }
     }
 

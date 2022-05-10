@@ -3,7 +3,7 @@ package com.example.hemahotel.service;
 
 import com.example.hemahotel.utils.ResponseUtils;
 
-import java.util.Map;
+import java.sql.Date;
 
 public interface UserService {
 
@@ -12,9 +12,14 @@ public interface UserService {
 
 
     /**用户登录(手机号/邮箱 + 密码）*/
-    public ResponseUtils Login_Password(String teleEmail, String password);
+    public ResponseUtils loginPassword(String teleEmail, String password);
 
     /** 用户主页 */
     public ResponseUtils information(Long userId);
 
+    public ResponseUtils passwordModify(Long userId,String oldPassword,String newPassword);
+
+    public ResponseUtils informationModify(Long userId, String username, Integer gender, Date birthDate,
+                                           Integer age, String signature, String preference_label,
+                                           String address, String email, String phone);
 }

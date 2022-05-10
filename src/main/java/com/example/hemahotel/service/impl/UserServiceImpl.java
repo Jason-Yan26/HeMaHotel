@@ -12,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.sql.Date;
 import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.List;
@@ -64,7 +65,7 @@ public class UserServiceImpl  implements UserService {
     }
 
     /**用户登录(手机号/邮箱 + 密码）*/
-    public ResponseUtils Login_Password(String teleEmail, String password){
+    public ResponseUtils loginPassword(String teleEmail, String password){
         jsonObject = new JSONObject();
 
         Optional<User> user = userRepository.findByPhoneOrEmail(teleEmail,teleEmail);
@@ -113,4 +114,82 @@ public class UserServiceImpl  implements UserService {
             return ResponseUtils.response(401, "用户不存在", jsonObject);
         }
     }
+
+    /** 修改用户密码 */
+    public ResponseUtils passwordModify(Long id,String oldPassword,String newPassword){
+
+        jsonObject = new JSONObject();
+        Optional<User> u = userRepository.findById(id);
+
+        if(!u.isPresent()){
+            jsonObject.put("id",id);
+            return ResponseUtils.response(402, "用户不存在", jsonObject);
+        }
+        //用户存在
+        else {
+            User user = u.get();
+            String password = user.getPassword();
+            //用户输入原始密码与数据库保持一致,还未加密密码
+            if(oldPassword.equals(password)){
+                user.setPassword(newPassword);
+                userRepository.save(user);
+                return ResponseUtils.response(200,"用户密码修改成功", jsonObject);
+            }
+            else{
+                return ResponseUtils.response(401,"原密码输入错误,密码修改失败", jsonObject);
+            }
+        }
+    }
+
+    /** 修改用户个人信息*/
+    public ResponseUtils informationModify(Long userId, String username, Integer gender, Date birthDate,
+                                           Integer age, String signature, String preference_label,
+                                           String address, String email, String phone){
+        jsonObject = new JSONObject();
+        Optional<User> u = userRepository.findById(userId);
+
+        if(!u.isPresent()){
+            jsonObject.put("id",userId);
+            return ResponseUtils.response(404,"用户不存在", jsonObject);
+        }
+        //用户id存在
+        else {
+            User user = u.get();
+
+            Optional<User> user1 = userRepository.findByUsername(username);
+            if(user1.isPresent()) {
+                if(!(user1.get().getId().equals(userId))){
+                    return ResponseUtils.response(401,"用户名已存在，请重新修改用户名", jsonObject);
+                }
+            }
+            user.setUsername(username);
+
+            user.setGender(gender);
+            user.setBirthDate(birthDate);
+            //user.setAge(age);
+            //user.setSignature(signature);
+            //user.setPreferenceLabel(preference_label);
+            //user.setAddress(address);
+
+            user1 = userRepository.findByPhone(phone);
+            if(user1.isPresent()) {
+                if(!user1.get().getId().equals(userId)){
+                    return ResponseUtils.response(402,"用户所输手机号已被绑定，请重新绑定用户手机号", jsonObject);
+                }
+            }
+            user.setPhone(phone);
+
+            user1 = userRepository.findByEmail(email);
+            if(user1.isPresent()) {
+                if(!user1.get().getId().equals(userId)){
+                    return ResponseUtils.response(403,"用户所输邮箱已被绑定，请重新绑定用户邮箱", jsonObject);
+                }
+            }
+            user.setEmail(email);
+
+            userRepository.save(user);
+            return ResponseUtils.response(200,"用户个人信息修改成功", jsonObject);
+        }
+    }
+
 }

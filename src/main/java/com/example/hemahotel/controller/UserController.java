@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
+import java.sql.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -51,12 +52,12 @@ public class UserController {
 
     /**用户登录接口(手机号/邮箱+密码)*/
     @PostMapping("/login/password")
-    public ResponseUtils Login_Password(@RequestBody JSONObject jsonObject) {
+    public ResponseUtils loginPassword(@RequestBody JSONObject jsonObject) {
 
         String teleEmail = jsonObject.getString("tele_email");
         String password = jsonObject.getString("password");
 
-        return userService.Login_Password(teleEmail,password);
+        return userService.loginPassword(teleEmail,password);
     }
 
     /**用户主页接口*/
@@ -68,6 +69,44 @@ public class UserController {
         Long id = Long.valueOf(JWTUtils.getUserId(token));
 
         return userService.information(id);
+    }
+
+    @PostMapping("/password")
+    public ResponseUtils passwordModify(@RequestBody JSONObject jsonObject,HttpServletRequest request) {
+
+        //从token中获取id
+        String token = request.getHeader("token");
+        Long id = Long.valueOf(JWTUtils.getUserId(token));
+
+        String oldPassword = jsonObject.getString("oldPassword");
+        String newPassword = jsonObject.getString("newPassword");
+
+        return userService.passwordModify(id,oldPassword,newPassword);
+    }
+
+
+    //用户修改个人资料接口
+    @PostMapping("/information/modify")
+    public ResponseUtils informationModify(@RequestBody JSONObject jsonObject,HttpServletRequest request) {
+
+        //从token中获取id
+        String token = request.getHeader("token");
+        Long id = Long.valueOf(JWTUtils.getUserId(token));
+
+        String username = jsonObject.getString("username");
+        Integer gender = jsonObject.getInteger("gender");
+        Date birthDate = new java.sql.Date(jsonObject.getDate("birth_date").getTime());
+        Integer age = jsonObject.getInteger("age");
+
+        String signature = jsonObject.getString("signature");
+        String preferenceLabel = jsonObject.getString("preference_label");
+
+        String address = jsonObject.getString("address");
+        String email = jsonObject.getString("email");
+        String phone = jsonObject.getString("phone");
+
+        return userService.informationModify(id,username,gender,birthDate,age,signature,
+                preferenceLabel,address,email,phone);
     }
 
 }
