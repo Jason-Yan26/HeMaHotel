@@ -1,7 +1,9 @@
 package com.example.hemahotel.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
+import com.example.hemahotel.dao.GuestRepository;
 import com.example.hemahotel.dao.UserRepository;
+import com.example.hemahotel.entity.Guest;
 import com.example.hemahotel.entity.User;
 import com.example.hemahotel.jwt.JWTUtils;
 import com.example.hemahotel.service.UserService;
@@ -12,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -24,6 +27,8 @@ public class UserServiceImpl  implements UserService {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private GuestRepository guestRepository;
 
     /**用户注册*/
     //TODO:手机验证码功能还未加入,默认verCode = 123456，verCodeId = 6;
@@ -69,6 +74,8 @@ public class UserServiceImpl  implements UserService {
                 map.put("id",user.get().getId().toString());
                 map.put("phone",user.get().getPhone());
 
+                System.out.println(map);
+
                 String Token = JWTUtils.getToken(map);
 
                 jsonObject.put("token",Token);
@@ -83,6 +90,27 @@ public class UserServiceImpl  implements UserService {
         }
         else{
                 return ResponseUtils.response(401,"用户并未注册账户，请注册后登录平台", jsonObject);
+        }
+    }
+
+    /** 用户主页 */
+    public ResponseUtils information(Long userId){
+        jsonObject = new JSONObject();
+
+        Optional<User> u = userRepository.findById(userId);
+        //用户存在，返回用户的个人主页信息
+        if(u.isPresent()) {
+            User user = u.get();
+            List<Guest> Guests = guestRepository.findAllByUserIdOrderByUpdateTimeDesc(user.getId());
+            jsonObject.put("user",user);
+            jsonObject.put("guests", Guests);
+
+            return ResponseUtils.success("用户信息获取成功",jsonObject);
+        }
+        //用户不存在，返回错误提示信息
+        else {
+            jsonObject.put("id",userId);
+            return ResponseUtils.response(401, "用户不存在", jsonObject);
         }
     }
 }

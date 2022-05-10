@@ -37,7 +37,6 @@ public class UserController {
         return map;
     }
 
-
     /**用户注册接口*/
     @PostMapping("/register")
     public ResponseUtils register(@RequestBody JSONObject jsonObject) {
@@ -60,5 +59,15 @@ public class UserController {
         return userService.Login_Password(teleEmail,password);
     }
 
+    /**用户主页接口*/
+    @PostMapping("/information")
+    public ResponseUtils information(HttpServletRequest request) {
+        //从token中获取id
+        String token = request.getHeader("token");
+
+        Long id = Long.valueOf(JWTUtils.getUserId(token));
+
+        return userService.information(id);
+    }
 
 }

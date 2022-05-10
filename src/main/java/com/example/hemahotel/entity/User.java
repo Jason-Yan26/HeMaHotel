@@ -1,6 +1,7 @@
 package com.example.hemahotel.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -24,6 +25,7 @@ public class User {
     private String username;//用户名
 
     @Column
+    @JsonIgnore  //返回时排除掉这个字段
     private String password;//密码
 
     @Column
