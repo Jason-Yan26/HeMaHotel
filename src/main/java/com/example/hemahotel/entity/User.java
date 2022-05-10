@@ -56,5 +56,12 @@ public class User {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Timestamp updateTime;//用户更新时间
 
-
+    public User(String username, String password, String phone, Integer status, Timestamp createTime, Timestamp updateTime) {
+        this.username = username;
+        this.password = password;
+        this.phone = phone;
+        this.status = status;
+        this.createTime = createTime;
+        this.updateTime = updateTime;
+    }
 }
