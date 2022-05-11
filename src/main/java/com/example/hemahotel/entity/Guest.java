@@ -37,4 +37,12 @@ public class Guest {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Timestamp updateTime;//住客信息更新时间
 
+    public Guest(Long userId, String name, String phone, String idNumber, Timestamp createTime, Timestamp updateTime) {
+        this.userId = userId;
+        this.name = name;
+        this.phone = phone;
+        this.idNumber = idNumber;
+        this.createTime = createTime;
+        this.updateTime = updateTime;
+    }
 }
