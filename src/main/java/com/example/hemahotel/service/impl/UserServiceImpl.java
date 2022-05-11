@@ -10,14 +10,16 @@ import com.example.hemahotel.service.UserService;
 import com.example.hemahotel.utils.ResponseUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.IOException;
 import java.sql.Date;
 import java.sql.Timestamp;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 @Service
 @Slf4j
@@ -30,6 +32,12 @@ public class UserServiceImpl  implements UserService {
 
     @Autowired
     private GuestRepository guestRepository;
+
+    private SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy/MM/dd/");
+
+    //服务器地址
+    @Value("${file.uploadUrl}")
+    private String uploadPath;
 
     /**用户注册*/
     //TODO:手机验证码功能还未加入,默认verCode = 123456，verCodeId = 6;
@@ -192,4 +200,55 @@ public class UserServiceImpl  implements UserService {
         }
     }
 
+    /** 头像上传 */
+    public ResponseUtils avatarUpload(Long userId, MultipartFile file, String urlPrefix){
+
+        JSONObject jsonObject = new JSONObject();
+        Optional<User> u = userRepository.findById(userId);
+
+        if(!u.isPresent()){
+            jsonObject.put("id",userId);
+            return ResponseUtils.response(401,"用户不存在", jsonObject);
+        }
+        //用户id存在
+        else {
+            //1.文件保存地址的后半段目录：  2022/05/11/
+            String directory = simpleDateFormat.format(new java.util.Date());
+
+            //2.服务器端文件保存目录  D:/upload/2022/05/11/   如果目录不存在，则创建
+            File dir = new File(uploadPath + directory);
+            if (!dir.exists()) {
+                dir.mkdirs();
+            }
+
+            //3.文件保存名称（产生的唯一随机数+文件后缀）
+            String suffix = file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf("."));
+            String newFileName= UUID.randomUUID().toString().replaceAll("-", "")+suffix;
+
+            //4.创建这个新文件
+            File newFile = new File(uploadPath + directory + newFileName);
+
+            //5.文件上传
+            try {
+                file.transferTo(newFile);
+                //可访问url格式：  文件目录(/upload/2022/05/11/xxx.jpg)
+                //String url = urlPrefix+ "/upload/" + directory + newFileName; // 部署到服务器端后需更改
+                String url = "file:///" + uploadPath + directory + newFileName; // 目前测试在本机
+                jsonObject.put("url",url);
+
+                //修改用户头像
+                User user = u.get();
+                user.setAvatar(url);
+                userRepository.save(user);
+                return ResponseUtils.response(200, "头像上传成功",jsonObject);
+
+            } catch (IOException e) {
+                e.printStackTrace();
+                return ResponseUtils.response(400, "头像上传失败",jsonObject);
+            }
+        }
+
+
+
+    }
 }

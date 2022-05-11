@@ -7,15 +7,18 @@ import com.example.hemahotel.service.UserService;
 import com.example.hemahotel.utils.ResponseUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.File;
+import java.io.IOException;
 import java.sql.Date;
+import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/user")
@@ -109,4 +112,16 @@ public class UserController {
                 preferenceLabel,address,email,phone);
     }
 
+    @PostMapping("/avatar/upload")
+    public ResponseUtils avatarUpload(@RequestParam("file") MultipartFile file, HttpServletRequest request){
+
+        //从token中获取id
+        String token = request.getHeader("token");
+        Long id = Long.valueOf(JWTUtils.getUserId(token));
+
+        //url前缀：协议://ip地址:端口号/
+        String urlPrefix = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort();
+
+        return userService.avatarUpload(id,file,urlPrefix);
+    }
 }

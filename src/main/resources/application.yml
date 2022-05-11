@@ -32,3 +32,8 @@ spring:
             port: 587
           ssl:
             enable: true
+
+#文件上传地址配置
+file:
+  #服务器地址
+  uploadUrl: "D:/upload/" # 目前放在本机上测试, 后续部署到服务器中需做更改, “root/upload”
