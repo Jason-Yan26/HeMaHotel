@@ -29,4 +29,5 @@ public interface UserService {
                                            String address, String email, String phone);
     /** 用户头像上传 */
     public ResponseUtils avatarUpload(Long userId, MultipartFile file, String urlPrefix);
+
 }

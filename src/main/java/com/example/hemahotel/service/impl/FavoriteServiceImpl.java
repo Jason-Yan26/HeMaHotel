@@ -82,7 +82,7 @@ public class FavoriteServiceImpl implements FavoriteService{
                 Hotel hotel = h.get();
                 map.put("hotelName", hotel.getName());
                 map.put("hotelPicture", hotel.getPicture());
-                map.put("hotelPrice", hotel.getPrice());
+                //map.put("hotelPrice", hotel.getPrice());
                 res.add(map);
             }
         }
