@@ -17,6 +17,8 @@
     <description>HeMaHotel</description>
     <properties>
         <java.version>1.8</java.version>
+<!--        &lt;!&ndash; 统一版本 &ndash;&gt;-->
+<!--        <elasticsearch.version>8.2.0</elasticsearch.version>-->
     </properties>
 
     <dependencies>
@@ -79,6 +81,13 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-mail</artifactId>
             <version>2.5.2</version>
+        </dependency>
+
+        <!-- Elasticsearch-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-elasticsearch</artifactId>
+            <version>2.6.7</version>
         </dependency>
 
 

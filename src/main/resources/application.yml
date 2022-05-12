@@ -33,6 +33,11 @@ spring:
           ssl:
             enable: true
 
+  #elasticsearch配置
+  elasticsearch:
+    hostname: 81.69.175.215
+    port: 9200
+
 #文件上传地址配置
 file:
   #服务器地址
