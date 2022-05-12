@@ -232,8 +232,8 @@ public class UserServiceImpl  implements UserService {
             try {
                 file.transferTo(newFile);
                 //可访问url格式：  文件目录(/upload/2022/05/11/xxx.jpg)
-                //String url = urlPrefix+ "/upload/" + directory + newFileName; // 部署到服务器端后需更改
-                String url = "file:///" + uploadPath + directory + newFileName; // 目前测试在本机
+                String url = urlPrefix+ "/upload/" + directory + newFileName; // 部署到服务器端后需更改
+                //String url = "file:///" + uploadPath + directory + newFileName; // 目前测试在本机
                 jsonObject.put("url",url);
 
                 //修改用户头像
