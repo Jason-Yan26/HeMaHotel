@@ -28,11 +28,11 @@ public class Hotel {
     @Column
     private String picture;//酒店图片
 
-    @Column
-    private Double price;//酒店房间中最低价
+    //@Column
+    //private Double price;//酒店房间中最低价
 
     @Column
-    private Integer star;//星级
+    private double star;//星级
 
     @Column
     private String phone;//酒店客服联系电话

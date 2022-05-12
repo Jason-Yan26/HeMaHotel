@@ -1,8 +1,11 @@
 package com.example.hemahotel.controller;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import com.example.hemahotel.entity.User;
 import com.example.hemahotel.jwt.JWTUtils;
+import com.example.hemahotel.service.HotelService;
 import com.example.hemahotel.service.UserService;
 import com.example.hemahotel.utils.ResponseUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -15,6 +18,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.io.IOException;
 import java.sql.Date;
+import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.Map;
@@ -27,6 +31,9 @@ public class UserController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private HotelService hotelService;
 
     @PostMapping("/user/test")
     public Map<String, Object> test(HttpServletRequest request) {
@@ -123,5 +130,21 @@ public class UserController {
         String urlPrefix = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort();
 
         return userService.avatarUpload(id,file,urlPrefix);
+    }
+
+    @PostMapping("/comment/make")
+    public ResponseUtils MakeComments(@RequestBody String jsonStr, HttpServletRequest request){
+        JSONObject jsonObject = JSON.parseObject(jsonStr);
+        //获取用户相关信息
+        String token = request.getHeader("token");
+        Long id = Long.valueOf(JWTUtils.getUserId(token));
+
+
+        //获取酒店相关信息
+        String comment = jsonObject.getString("comment");
+        Long hotelId = jsonObject.getLong("hotelId");
+        int star = jsonObject.getInteger("star") == null ? 5 : jsonObject.getInteger("star");
+
+        return hotelService.CreateComment(id,comment,hotelId,star);
     }
 }
