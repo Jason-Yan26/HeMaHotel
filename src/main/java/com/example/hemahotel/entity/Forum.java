@@ -19,7 +19,7 @@ public class Forum {
 
     @Id // 主键
     @GeneratedValue(strategy = GenerationType.IDENTITY)//自增主键
-    private Long id;//通知id
+    private Long id;// 帖子id
 
     @Column
     private Long userId;//用户id
