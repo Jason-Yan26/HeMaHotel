@@ -1,0 +1,10 @@
+package com.example.hemahotel.service;
+
+import com.example.hemahotel.entity.Room;
+import com.example.hemahotel.utils.ResponseUtils;
+
+import java.util.List;
+
+public interface RoomService {
+
+}
