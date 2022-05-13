@@ -17,6 +17,7 @@
     <description>HeMaHotel</description>
     <properties>
         <java.version>1.8</java.version>
+        <elasticsearch.version>7.15.2</elasticsearch.version>
 <!--        &lt;!&ndash; 统一版本 &ndash;&gt;-->
 <!--        <elasticsearch.version>8.2.0</elasticsearch.version>-->
     </properties>
@@ -87,9 +88,20 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-elasticsearch</artifactId>
-            <version>2.6.7</version>
+<!--            <version>3.2.1</version>-->
         </dependency>
 
+<!--        <dependency>-->
+<!--            <groupId>org.elasticsearch.plugin</groupId>-->
+<!--            <artifactId>transport-netty4-client</artifactId>-->
+<!--            <version>8.2.0</version>-->
+<!--        </dependency>-->
+
+<!--        <dependency>-->
+<!--            <groupId>org.elasticsearch</groupId>-->
+<!--            <artifactId>elasticsearch</artifactId>-->
+<!--            <version>8.1.0</version>-->
+<!--        </dependency>-->
 
     </dependencies>
 
