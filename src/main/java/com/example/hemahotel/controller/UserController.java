@@ -133,8 +133,8 @@ public class UserController {
     }
 
     @PostMapping("/comment/make")
-    public ResponseUtils MakeComments(@RequestBody String jsonStr, HttpServletRequest request){
-        JSONObject jsonObject = JSON.parseObject(jsonStr);
+    public ResponseUtils MakeComments(@RequestBody JSONObject jsonObject, HttpServletRequest request){
+
         //获取用户相关信息
         String token = request.getHeader("token");
         Long id = Long.valueOf(JWTUtils.getUserId(token));

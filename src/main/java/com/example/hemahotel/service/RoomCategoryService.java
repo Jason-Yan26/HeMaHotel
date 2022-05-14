@@ -9,4 +9,6 @@ public interface RoomCategoryService {
     public ResponseUtils GetRoomInformationByHotelId(Long hotelId);
 
     public ResponseUtils GetRoomInformationByHotelIdAndRoomCategoryId(Long hotelId,Long RoomCategoryId);
+
+
 }

@@ -7,4 +7,5 @@ import java.util.List;
 
 public interface RoomService {
 
+    public ResponseUtils getFreeNumByRoomCategoryId(Long roomCategoryId);
 }
