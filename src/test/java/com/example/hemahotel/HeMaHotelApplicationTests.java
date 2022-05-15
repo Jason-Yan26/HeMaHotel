@@ -88,7 +88,7 @@ class HeMaHotelApplicationTests {
         // 使用suggest进行标题联想
         CompletionSuggestionBuilder suggest = SuggestBuilders.completionSuggestion("name")
                 //根据什么前缀来联想
-                .prefix("北京")
+                .prefix("天津")
                 // 跳过重复过滤
                 .skipDuplicates(true)
                 // 匹配数量

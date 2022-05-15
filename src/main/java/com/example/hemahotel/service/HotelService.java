@@ -7,4 +7,8 @@ public interface HotelService {
     public ResponseUtils CreateComment(Long userId, String comment, Long hotelId, int star);
 
     public ResponseUtils findCommentByHotelId(Long productId);
+
+
+    /** 酒店名称自动补全*/
+    public ResponseUtils hotelNameCompletion(String prefix);
 }

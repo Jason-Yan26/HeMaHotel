@@ -60,4 +60,11 @@ public class HotelController {
 
         return roomCategoryService.GetRoomInformationByHotelIdAndRoomCategoryId(hotelId,roomCategoryId);
     }
+
+    @PostMapping("/name/completion")
+    public ResponseUtils getNameCompletion(@RequestBody JSONObject jsonObject){
+
+        String prefix = jsonObject.getString("hotel_name_prefix");
+        return hotelService.hotelNameCompletion(prefix);
+    }
 }
