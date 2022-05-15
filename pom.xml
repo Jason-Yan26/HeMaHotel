@@ -90,6 +90,12 @@
             <artifactId>spring-boot-starter-data-elasticsearch</artifactId>
             <version>2.6.7</version>
         </dependency>
+        <!-- Alipay -->
+        <dependency>
+            <groupId>com.alipay.sdk</groupId>
+            <artifactId>alipay-easysdk</artifactId>
+            <version>2.2.0</version>
+        </dependency>
 
 <!--        <dependency>-->
 <!--            <groupId>org.elasticsearch.plugin</groupId>-->

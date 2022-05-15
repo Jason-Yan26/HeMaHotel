@@ -22,8 +22,8 @@ public class ScheduleConfig {
     @Autowired
     HotelRepository hotelRepository;
 
-    //每两个小时更新一次
-    @Scheduled(cron = "0 0 0/12 * * *")
+    //每天凌晨3点更新
+    @Scheduled(cron = "0 0 3 * * ?")
     public void ElasticSearchSchedule(){
         searchHotelRepository.deleteAll();
         searchHotelRepository.saveAll(ConvertHotel(hotelRepository.findAll()));

@@ -8,4 +8,6 @@ import java.util.Optional;
 public interface ReservationRepository extends JpaRepository<Reservation, Long> {
 
 
+    /**根据订单id和 orderIthRoom 查找reservation*/
+    Optional<Reservation> findByOrderIdAndOrderIthRoom(Long orderId,Long orderIthRoom);
 }

@@ -29,6 +29,9 @@ public class Reservation {
     private Long roomId;
 
     @Column
+    private Long orderIthRoom;//表示 roomId表示的房间 是 orderId表示的订单中的第 i 个
+
+    @Column
     private Long guestId1;
 
     @Column

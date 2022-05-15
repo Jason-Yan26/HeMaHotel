@@ -79,60 +79,60 @@ class HeMaHotelApplicationTests {
 //    }
 
     //添加数据
-    @Test
-    public void addData() {
+//    @Test
+//    public void addData() {
+//
+//        for(int i = 7402;i < 8000;i++) {
+//
+//            Hotel hotel = hotelRepository.findById(new Long((long)i)).get();
+//
+//            List<String> suggestList = new ArrayList<>();
+//            String name = hotel.getName();
+//            suggestList.add(name); //可以把多个内容作为suggest的数据源
+//            Completion suggest = new Completion(suggestList.toArray(new String[suggestList.size()]));
+//            SearchHotel s = new SearchHotel(hotel.getId(), suggest, hotel.getLocation(), hotel.getStar(), hotel.getDescription());
+//            searchHotelRepository.save(s);
+//        }
+//
+//    }
 
-        for(int i = 7402;i < 8000;i++) {
+//    @Test
+//    public void testDelete() {
+//        searchHotelRepository.deleteAll();
+//    }
 
-            Hotel hotel = hotelRepository.findById(new Long((long)i)).get();
-
-            List<String> suggestList = new ArrayList<>();
-            String name = hotel.getName();
-            suggestList.add(name); //可以把多个内容作为suggest的数据源
-            Completion suggest = new Completion(suggestList.toArray(new String[suggestList.size()]));
-            SearchHotel s = new SearchHotel(hotel.getId(), suggest, hotel.getLocation(), hotel.getStar(), hotel.getDescription());
-            searchHotelRepository.save(s);
-        }
-
-    }
-
-    @Test
-    public void testDelete() {
-        searchHotelRepository.deleteAll();
-    }
-
-    @Test
-    public void search(){
-        // 使用suggest进行标题联想
-        CompletionSuggestionBuilder suggest = SuggestBuilders.completionSuggestion("name")
-                //根据什么前缀来联想
-                .prefix("天津")
-                // 跳过重复过滤
-                .skipDuplicates(true)
-                // 匹配数量
-                .size(10);
-        SuggestBuilder suggestBuilder = new SuggestBuilder();
-        suggestBuilder.addSuggestion("hotel-suggest",suggest);
-
-        //执行查询
-//        SearchResponse suggestResp = elasticsearchRestTemplate.suggest(suggestBuilder, GoodsDoc.class);
-        SearchResponse suggestResp = elasticsearchRestTemplate.suggest(suggestBuilder, SearchHotel.class);
-
-        //拿到Suggest结果
-        Suggest.Suggestion<? extends Suggest.Suggestion.Entry<? extends Suggest.Suggestion.Entry.Option>> orderSuggest = suggestResp
-                .getSuggest().getSuggestion("hotel-suggest");
-
-        // 处理返回结果
-        List<String> suggests = orderSuggest.getEntries().stream()
-                .map(x -> x.getOptions().stream()
-                        .map(y->y.getText().toString())
-                        .collect(Collectors.toList())).findFirst().get();
-
-        // 输出内容
-        for (String str : suggests) {
-            System.out.println("自动补全 = " + str);
-        }
-    }
+//    @Test
+//    public void search(){
+//        // 使用suggest进行标题联想
+//        CompletionSuggestionBuilder suggest = SuggestBuilders.completionSuggestion("name")
+//                //根据什么前缀来联想
+//                .prefix("天津")
+//                // 跳过重复过滤
+//                .skipDuplicates(true)
+//                // 匹配数量
+//                .size(10);
+//        SuggestBuilder suggestBuilder = new SuggestBuilder();
+//        suggestBuilder.addSuggestion("hotel-suggest",suggest);
+//
+//        //执行查询
+////        SearchResponse suggestResp = elasticsearchRestTemplate.suggest(suggestBuilder, GoodsDoc.class);
+//        SearchResponse suggestResp = elasticsearchRestTemplate.suggest(suggestBuilder, SearchHotel.class);
+//
+//        //拿到Suggest结果
+//        Suggest.Suggestion<? extends Suggest.Suggestion.Entry<? extends Suggest.Suggestion.Entry.Option>> orderSuggest = suggestResp
+//                .getSuggest().getSuggestion("hotel-suggest");
+//
+//        // 处理返回结果
+//        List<String> suggests = orderSuggest.getEntries().stream()
+//                .map(x -> x.getOptions().stream()
+//                        .map(y->y.getText().toString())
+//                        .collect(Collectors.toList())).findFirst().get();
+//
+//        // 输出内容
+//        for (String str : suggests) {
+//            System.out.println("自动补全 = " + str);
+//        }
+//    }
 
 
 //    public List<String> getSuggestions(String prefix) {
@@ -250,71 +250,71 @@ class HeMaHotelApplicationTests {
 //    }
 
 
-    @Test
-    public void fuzzySearch(){
-
-        int page = 0;
-        int pageNum = 10;
-        String searchKeyWord = "北京";
-        int lowerStar = 1;
-        int upperStar = 5;
-
-        // 1. Create query on multiple fields enabling fuzzy search
-        Query searchQuery;
-
-//      //对商品名，商品详情， 商品id赋予不同的权值
-        List<FunctionScoreQueryBuilder.FilterFunctionBuilder> filterFunctionBuilders = new ArrayList<>();
-
+//    @Test
+//    public void fuzzySearch(){
+//
+//        int page = 0;
+//        int pageNum = 10;
+//        String searchKeyWord = "北京";
+//        int lowerStar = 1;
+//        int upperStar = 5;
+//
+//        // 1. Create query on multiple fields enabling fuzzy search
+//        Query searchQuery;
+//
+////      //对商品名，商品详情， 商品id赋予不同的权值
+//        List<FunctionScoreQueryBuilder.FilterFunctionBuilder> filterFunctionBuilders = new ArrayList<>();
+//
+////        filterFunctionBuilders.add(
+////                new FunctionScoreQueryBuilder.FilterFunctionBuilder(
+////                        QueryBuilders.termQuery("name", searchKeyWord), ScoreFunctionBuilders.weightFactorFunction(50)));
+//
 //        filterFunctionBuilders.add(
 //                new FunctionScoreQueryBuilder.FilterFunctionBuilder(
-//                        QueryBuilders.termQuery("name", searchKeyWord), ScoreFunctionBuilders.weightFactorFunction(50)));
-
-        filterFunctionBuilders.add(
-                new FunctionScoreQueryBuilder.FilterFunctionBuilder(
-                        QueryBuilders.matchPhraseQuery("location", searchKeyWord), ScoreFunctionBuilders.weightFactorFunction(50)));
-
-        //Combine
-        FunctionScoreQueryBuilder.FilterFunctionBuilder[] builders = new FunctionScoreQueryBuilder.FilterFunctionBuilder[filterFunctionBuilders.size()];
-        filterFunctionBuilders.toArray(builders);
-        FunctionScoreQueryBuilder functionScoreQueryBuilder = QueryBuilders.functionScoreQuery(builders)
-                .scoreMode(FunctionScoreQuery.ScoreMode.SUM)
-                .setMinScore(2);
-
-        BoolQueryBuilder boolQueryBuilder =
-                QueryBuilders.boolQuery()
-                        //酒店星级匹配
-                        .must(QueryBuilders.rangeQuery("star").from(lowerStar).to(upperStar));
-
-        searchQuery = new NativeSearchQueryBuilder()
-                .withQuery(functionScoreQueryBuilder)
-                //筛选条件匹配
-                .withFilter(boolQueryBuilder)
-                //分页匹配
-                .withPageable(PageRequest.of(page, pageNum))
-                .build();
-
-        // 2. Execute search
-        SearchHits<SearchHotel> hotelHits =
-                elasticsearchOperations.search(searchQuery, SearchHotel.class,IndexCoordinates.of("hotel"));
-
-
-        // 3. Map searchHits to product list
-        List<SearchHotel> hotelMatches = new ArrayList<SearchHotel>();
-        hotelHits.forEach(searchHit -> {
-            hotelMatches.add(searchHit.getContent());
-        });
-
-        //如果得到的列表为空， 抛出异常
-        if (hotelMatches.size() == 0){
-            System.out.println("查找结果为空！");
-        }
-        System.out.println("查找成功！");
-
-        JSONObject jsonObject = new JSONObject();
-
-
-
-//        return ResponseUtils.success("查找成功", jsonArray);
-    }
+//                        QueryBuilders.matchPhraseQuery("location", searchKeyWord), ScoreFunctionBuilders.weightFactorFunction(50)));
+//
+//        //Combine
+//        FunctionScoreQueryBuilder.FilterFunctionBuilder[] builders = new FunctionScoreQueryBuilder.FilterFunctionBuilder[filterFunctionBuilders.size()];
+//        filterFunctionBuilders.toArray(builders);
+//        FunctionScoreQueryBuilder functionScoreQueryBuilder = QueryBuilders.functionScoreQuery(builders)
+//                .scoreMode(FunctionScoreQuery.ScoreMode.SUM)
+//                .setMinScore(2);
+//
+//        BoolQueryBuilder boolQueryBuilder =
+//                QueryBuilders.boolQuery()
+//                        //酒店星级匹配
+//                        .must(QueryBuilders.rangeQuery("star").from(lowerStar).to(upperStar));
+//
+//        searchQuery = new NativeSearchQueryBuilder()
+//                .withQuery(functionScoreQueryBuilder)
+//                //筛选条件匹配
+//                .withFilter(boolQueryBuilder)
+//                //分页匹配
+//                .withPageable(PageRequest.of(page, pageNum))
+//                .build();
+//
+//        // 2. Execute search
+//        SearchHits<SearchHotel> hotelHits =
+//                elasticsearchOperations.search(searchQuery, SearchHotel.class,IndexCoordinates.of("hotel"));
+//
+//
+//        // 3. Map searchHits to product list
+//        List<SearchHotel> hotelMatches = new ArrayList<SearchHotel>();
+//        hotelHits.forEach(searchHit -> {
+//            hotelMatches.add(searchHit.getContent());
+//        });
+//
+//        //如果得到的列表为空， 抛出异常
+//        if (hotelMatches.size() == 0){
+//            System.out.println("查找结果为空！");
+//        }
+//        System.out.println("查找成功！");
+//
+//        JSONObject jsonObject = new JSONObject();
+//
+//
+//
+////        return ResponseUtils.success("查找成功", jsonArray);
+//    }
 
 }

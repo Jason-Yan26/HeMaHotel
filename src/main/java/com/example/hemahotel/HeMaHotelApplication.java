@@ -31,7 +31,7 @@ public class HeMaHotelApplication {
     }
 
 
-//    //启动时将mysql数据库hotel表中的信息导入elasticsearch中的hotel这个index中
+    //启动时将mysql数据库hotel表中的信息导入elasticsearch中的hotel这个index中
 //    @PostConstruct
 //    public void buildIndex() {
 ////        elasticsearchOperations.indexOps(SearchHotel.class).refresh();
