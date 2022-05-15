@@ -35,7 +35,7 @@ spring:
 
   #elasticsearch配置
   elasticsearch:
-    hostname: 81.69.175.215
+    hostname: 47.115.219.185
     port: 9200
 
 #文件上传地址配置
