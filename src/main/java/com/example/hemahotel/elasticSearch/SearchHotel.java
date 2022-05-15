@@ -19,8 +19,8 @@ public class SearchHotel {
     @Id
     private Long id;//酒店ID
 
-    @CompletionField(analyzer = "ik_max_word",searchAnalyzer = "ik_smart",maxInputLength = 100)
-    private Completion name;//酒店名称
+    @Field(type = FieldType.Text,analyzer = "ik_max_word",searchAnalyzer = "ik_smart")
+    private String name;//酒店名称
 
     @Field(type = FieldType.Text,analyzer = "ik_max_word",searchAnalyzer = "ik_smart")
     private String location;//酒店位置
@@ -33,6 +33,9 @@ public class SearchHotel {
 
     @Field(type = FieldType.Text)
     private String description;//酒店描述
+
+    @CompletionField(analyzer = "ik_max_word",searchAnalyzer = "ik_smart",maxInputLength = 100)
+    private Completion suggestion;//酒店搜索补全建议
 
 //    @Field(type = FieldType.Keyword,index = false)
 //    private String phone;//酒店联系电话

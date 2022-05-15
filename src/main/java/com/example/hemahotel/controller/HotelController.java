@@ -61,10 +61,24 @@ public class HotelController {
         return roomCategoryService.GetRoomInformationByHotelIdAndRoomCategoryId(hotelId,roomCategoryId);
     }
 
+    /** 酒店名称自动补全接口*/
     @PostMapping("/name/completion")
     public ResponseUtils getNameCompletion(@RequestBody JSONObject jsonObject){
 
         String prefix = jsonObject.getString("hotel_name_prefix");
         return hotelService.hotelNameCompletion(prefix);
+    }
+
+    /** 酒店关键字搜索接口*/
+    @PostMapping("/search")
+    public ResponseUtils searchHotelByKeyword(@RequestBody JSONObject jsonObject){
+
+        String searchKeyWord = jsonObject.getString("searchKeyWord");//搜索关键字
+        int page = jsonObject.getInteger("page");//页数
+        int pageNum = jsonObject.getInteger("pageNum");//每页酒店信息的个数
+        int lowerStar = jsonObject.getInteger("lowerStar");//酒店星级下界
+        int upperStar = jsonObject.getInteger("upperStar");//酒店星级上界
+
+        return hotelService.searchHotelByKeyword(searchKeyWord,page,pageNum,lowerStar,upperStar);
     }
 }

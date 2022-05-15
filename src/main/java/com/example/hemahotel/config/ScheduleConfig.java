@@ -35,15 +35,16 @@ public class ScheduleConfig {
         for(Hotel h : hotels){
 
             List<String> suggestList = new ArrayList<>();
-            String name = h.getName();
-            suggestList.add(name); //可以把多个内容作为suggest的数据源
+            suggestList.add(h.getName()); //可以把多个内容作为suggest的数据源
+            suggestList.add(h.getLocation());
             Completion suggest = new Completion(suggestList.toArray(new String[suggestList.size()]));
 
             searchHotels.add(SearchHotel.builder()
                     .id(h.getId())
-                    .name(suggest)
+                    .name(h.getName())
                     .location(h.getLocation())
                     .star(h.getStar())
+                    .suggestion(suggest)
                     .build());
         }
         return searchHotels;

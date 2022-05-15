@@ -1,5 +1,7 @@
 package com.example.hemahotel;
 
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.example.hemahotel.dao.HotelRepository;
 import com.example.hemahotel.elasticSearch.SearchHotel;
 import com.example.hemahotel.elasticSearch.SearchHotelRepository;
@@ -8,6 +10,13 @@ import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.RequestOptions;
+import org.elasticsearch.common.lucene.search.function.FunctionScoreQuery;
+import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.index.query.functionscore.FunctionScoreQueryBuilder;
+import org.elasticsearch.index.query.functionscore.ScoreFunctionBuilders;
+import org.elasticsearch.search.sort.SortBuilders;
+import org.elasticsearch.search.sort.SortOrder;
 import org.elasticsearch.search.suggest.Suggest;
 import org.elasticsearch.search.suggest.SuggestBuilder;
 import org.elasticsearch.search.suggest.SuggestBuilders;
@@ -15,7 +24,13 @@ import org.elasticsearch.search.suggest.completion.CompletionSuggestionBuilder;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
 import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
+import org.springframework.data.elasticsearch.core.SearchHits;
+import org.springframework.data.elasticsearch.core.mapping.IndexCoordinates;
+import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
+import org.springframework.data.elasticsearch.core.query.Query;
 import org.springframework.data.elasticsearch.core.suggest.Completion;
 
 import java.util.ArrayList;
@@ -37,6 +52,9 @@ class HeMaHotelApplicationTests {
 
     @Autowired
     private HotelRepository hotelRepository;
+
+    @Autowired
+    private ElasticsearchOperations elasticsearchOperations;
 
 
 //    //创建索引和映射
@@ -230,5 +248,73 @@ class HeMaHotelApplicationTests {
 //        searchHotel.setPicture("https://img14.360buyimg.com/hotel/jfs/t1/172321/37/10598/775776/60a629f4Ee9175b6b/00c800117e6a7381.png");
 //        SearchHotel save = searchHotelRepository.save(searchHotel);
 //    }
+
+
+    @Test
+    public void fuzzySearch(){
+
+        int page = 0;
+        int pageNum = 10;
+        String searchKeyWord = "北京";
+        int lowerStar = 1;
+        int upperStar = 5;
+
+        // 1. Create query on multiple fields enabling fuzzy search
+        Query searchQuery;
+
+//      //对商品名，商品详情， 商品id赋予不同的权值
+        List<FunctionScoreQueryBuilder.FilterFunctionBuilder> filterFunctionBuilders = new ArrayList<>();
+
+//        filterFunctionBuilders.add(
+//                new FunctionScoreQueryBuilder.FilterFunctionBuilder(
+//                        QueryBuilders.termQuery("name", searchKeyWord), ScoreFunctionBuilders.weightFactorFunction(50)));
+
+        filterFunctionBuilders.add(
+                new FunctionScoreQueryBuilder.FilterFunctionBuilder(
+                        QueryBuilders.matchPhraseQuery("location", searchKeyWord), ScoreFunctionBuilders.weightFactorFunction(50)));
+
+        //Combine
+        FunctionScoreQueryBuilder.FilterFunctionBuilder[] builders = new FunctionScoreQueryBuilder.FilterFunctionBuilder[filterFunctionBuilders.size()];
+        filterFunctionBuilders.toArray(builders);
+        FunctionScoreQueryBuilder functionScoreQueryBuilder = QueryBuilders.functionScoreQuery(builders)
+                .scoreMode(FunctionScoreQuery.ScoreMode.SUM)
+                .setMinScore(2);
+
+        BoolQueryBuilder boolQueryBuilder =
+                QueryBuilders.boolQuery()
+                        //酒店星级匹配
+                        .must(QueryBuilders.rangeQuery("star").from(lowerStar).to(upperStar));
+
+        searchQuery = new NativeSearchQueryBuilder()
+                .withQuery(functionScoreQueryBuilder)
+                //筛选条件匹配
+                .withFilter(boolQueryBuilder)
+                //分页匹配
+                .withPageable(PageRequest.of(page, pageNum))
+                .build();
+
+        // 2. Execute search
+        SearchHits<SearchHotel> hotelHits =
+                elasticsearchOperations.search(searchQuery, SearchHotel.class,IndexCoordinates.of("hotel"));
+
+
+        // 3. Map searchHits to product list
+        List<SearchHotel> hotelMatches = new ArrayList<SearchHotel>();
+        hotelHits.forEach(searchHit -> {
+            hotelMatches.add(searchHit.getContent());
+        });
+
+        //如果得到的列表为空， 抛出异常
+        if (hotelMatches.size() == 0){
+            System.out.println("查找结果为空！");
+        }
+        System.out.println("查找成功！");
+
+        JSONObject jsonObject = new JSONObject();
+
+
+
+//        return ResponseUtils.success("查找成功", jsonArray);
+    }
 
 }

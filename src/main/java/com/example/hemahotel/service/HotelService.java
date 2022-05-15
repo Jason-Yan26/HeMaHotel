@@ -11,4 +11,8 @@ public interface HotelService {
 
     /** 酒店名称自动补全*/
     public ResponseUtils hotelNameCompletion(String prefix);
+
+    /** 酒店关键字搜索*/
+    public ResponseUtils searchHotelByKeyword(String searchKeyWord,int page,int pageNum,int lowerStar,int upperStar);
+
 }
