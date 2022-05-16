@@ -30,6 +30,9 @@ public interface UserService {
     /** 用户头像上传 */
     public ResponseUtils avatarUpload(Long userId, MultipartFile file, String urlPrefix);
 
+    /** 分页获取用户评论 */
     public ResponseUtils getComments(Long userId, Integer pageIndex, Integer pageSize, String sortProperty);
 
+    /** 获取用户评论总数 */
+    public ResponseUtils getCommentNum(Long userId);
 }

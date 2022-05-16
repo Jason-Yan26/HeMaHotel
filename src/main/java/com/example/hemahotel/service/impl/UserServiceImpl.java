@@ -289,4 +289,15 @@ public class UserServiceImpl  implements UserService {
 
         return ResponseUtils.response(200, "用户评论获取成功", res);
     }
+
+    @Override
+    public ResponseUtils getCommentNum(Long userId) {
+
+        Long number = commentRepository.countByUserId(userId);
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("commentNum",number);
+        return ResponseUtils.response(200, "用户评论总数获取成功", jsonObject);
+
+    }
+
 }

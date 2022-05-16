@@ -162,4 +162,14 @@ public class UserController {
 
         return userService.getComments(id,pageIndex,pageSize,sortProperty);
     }
+
+    @PostMapping("/comment/totalNum")
+    public ResponseUtils GetCommentNum(HttpServletRequest request){
+
+        //获取用户相关信息
+        String token = request.getHeader("token");
+        Long id = Long.valueOf(JWTUtils.getUserId(token));
+
+        return userService.getCommentNum(id);
+    }
 }
