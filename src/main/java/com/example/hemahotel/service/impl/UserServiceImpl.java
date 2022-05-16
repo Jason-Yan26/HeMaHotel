@@ -3,11 +3,9 @@ package com.example.hemahotel.service.impl;
 import com.alibaba.fastjson.JSONObject;
 import com.example.hemahotel.dao.CommentRepository;
 import com.example.hemahotel.dao.GuestRepository;
+import com.example.hemahotel.dao.HotelRepository;
 import com.example.hemahotel.dao.UserRepository;
-import com.example.hemahotel.entity.Comment;
-import com.example.hemahotel.entity.Forum;
-import com.example.hemahotel.entity.Guest;
-import com.example.hemahotel.entity.User;
+import com.example.hemahotel.entity.*;
 import com.example.hemahotel.jwt.JWTUtils;
 import com.example.hemahotel.service.UserService;
 import com.example.hemahotel.utils.ResponseUtils;
@@ -42,6 +40,9 @@ public class UserServiceImpl  implements UserService {
 
     @Autowired
     private CommentRepository commentRepository;
+
+    @Autowired
+    private HotelRepository hotelRepository;
 
     private SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy/MM/dd/");
 
@@ -268,8 +269,24 @@ public class UserServiceImpl  implements UserService {
         Sort sort = Sort.by(Sort.Order.desc(sortProperty)); // sortProperty:排序属性
         Pageable pageable = PageRequest.of(pageIndex, pageSize, sort);
         Page<Comment> comments = commentRepository.findAllByUserId(userId, pageable);
-        JSONObject res = new JSONObject();
-        res.put("comments", comments.getContent());
+
+        List<JSONObject> res = new ArrayList<>();
+        for(Comment c:comments.getContent()) {
+            JSONObject jsonObject = new JSONObject();
+            User user = userRepository.getById(userId);
+            Hotel hotel = hotelRepository.getById(c.getHotelId());
+            jsonObject.put("commentId",c.getId());
+            jsonObject.put("comment",c.getContent());
+            jsonObject.put("star",c.getStar());
+            jsonObject.put("username",user.getUsername());
+            jsonObject.put("userAvatar",user.getAvatar());
+            jsonObject.put("hotelId",hotel.getId());
+            jsonObject.put("hotelName",hotel.getName());
+            jsonObject.put("hotelPictureUrl",hotel.getPicture());
+            jsonObject.put("createTime",c.getCreateTime());
+            res.add(jsonObject);
+        }
+
         return ResponseUtils.response(200, "用户评论获取成功", res);
     }
 }
