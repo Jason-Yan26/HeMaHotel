@@ -1,8 +1,11 @@
 package com.example.hemahotel.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
+import com.example.hemahotel.dao.CommentRepository;
 import com.example.hemahotel.dao.GuestRepository;
 import com.example.hemahotel.dao.UserRepository;
+import com.example.hemahotel.entity.Comment;
+import com.example.hemahotel.entity.Forum;
 import com.example.hemahotel.entity.Guest;
 import com.example.hemahotel.entity.User;
 import com.example.hemahotel.jwt.JWTUtils;
@@ -11,6 +14,10 @@ import com.example.hemahotel.utils.ResponseUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -32,6 +39,9 @@ public class UserServiceImpl  implements UserService {
 
     @Autowired
     private GuestRepository guestRepository;
+
+    @Autowired
+    private CommentRepository commentRepository;
 
     private SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy/MM/dd/");
 
@@ -250,5 +260,16 @@ public class UserServiceImpl  implements UserService {
 
 
 
+    }
+
+    @Override
+    public ResponseUtils getComments(Long userId, Integer pageIndex, Integer pageSize, String sortProperty) {
+
+        Sort sort = Sort.by(Sort.Order.desc(sortProperty)); // sortProperty:排序属性
+        Pageable pageable = PageRequest.of(pageIndex, pageSize, sort);
+        Page<Comment> comments = commentRepository.findAllByUserId(userId, pageable);
+        JSONObject res = new JSONObject();
+        res.put("comments", comments.getContent());
+        return ResponseUtils.response(200, "用户评论获取成功", res);
     }
 }

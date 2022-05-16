@@ -30,4 +30,6 @@ public interface UserService {
     /** 用户头像上传 */
     public ResponseUtils avatarUpload(Long userId, MultipartFile file, String urlPrefix);
 
+    public ResponseUtils getComments(Long userId, Integer pageIndex, Integer pageSize, String sortProperty);
+
 }

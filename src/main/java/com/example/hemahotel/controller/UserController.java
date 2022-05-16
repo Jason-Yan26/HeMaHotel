@@ -147,4 +147,19 @@ public class UserController {
 
         return hotelService.CreateComment(id,comment,hotelId,star);
     }
+
+    @PostMapping("/comment")
+    public ResponseUtils GetComments(@RequestBody JSONObject jsonObject, HttpServletRequest request){
+
+        //获取用户相关信息
+        String token = request.getHeader("token");
+        Long id = Long.valueOf(JWTUtils.getUserId(token));
+
+        //获取用户评论相关信息
+        int pageIndex = jsonObject.getInteger("pageIndex"); //当前页码（注意：第一页是从0开始）
+        int pageSize = jsonObject.getInteger("commentNum"); //分页大小
+        String sortProperty = "createTime"; // 默认已createTime排序呗
+
+        return userService.getComments(id,pageIndex,pageSize,sortProperty);
+    }
 }
