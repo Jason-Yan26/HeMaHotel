@@ -23,11 +23,11 @@ public class ScheduleConfig {
     HotelRepository hotelRepository;
 
     //每天凌晨3点更新
-    @Scheduled(cron = "0 0 3 * * ?")
-    public void ElasticSearchSchedule(){
-        searchHotelRepository.deleteAll();
-        searchHotelRepository.saveAll(ConvertHotel(hotelRepository.findAll()));
-    }
+//    @Scheduled(cron = "0 0 3 * * ?")
+//    public void ElasticSearchSchedule(){
+//        searchHotelRepository.deleteAll();
+//        searchHotelRepository.saveAll(ConvertHotel(hotelRepository.findAll()));
+//    }
 
     //将酒店类转换成搜索酒店类
     public static List<SearchHotel> ConvertHotel(List<Hotel> hotels){
@@ -36,7 +36,7 @@ public class ScheduleConfig {
 
             List<String> suggestList = new ArrayList<>();
             suggestList.add(h.getName()); //可以把多个内容作为suggest的数据源
-            suggestList.add(h.getLocation());
+//            suggestList.add(h.getLocation());
             Completion suggest = new Completion(suggestList.toArray(new String[suggestList.size()]));
 
             searchHotels.add(SearchHotel.builder()

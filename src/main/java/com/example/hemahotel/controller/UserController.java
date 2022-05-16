@@ -140,11 +140,10 @@ public class UserController {
         String token = request.getHeader("token");
         Long id = Long.valueOf(JWTUtils.getUserId(token));
 
-
         //获取酒店相关信息
         String comment = jsonObject.getString("comment");
         Long hotelId = jsonObject.getLong("hotelId");
-        int star = jsonObject.getInteger("star") == null ? 5 : jsonObject.getInteger("star");
+        Integer star = jsonObject.getInteger("star") == null ? 5 : jsonObject.getInteger("star");
 
         return hotelService.CreateComment(id,comment,hotelId,star);
     }

@@ -81,4 +81,23 @@ public class HotelController {
 
         return hotelService.searchHotelByKeyword(searchKeyWord,page,pageNum,lowerStar,upperStar);
     }
+
+    /** 酒店关信息获取接口*/
+    @PostMapping("/information")
+    public ResponseUtils getHotelInformation(@RequestBody JSONObject jsonObject){
+
+        Long hotelId = jsonObject.getLong("hotelId");
+
+        return hotelService.getHotelInformation(hotelId);
+    }
+
+    /** 酒店推荐接口*/
+    @PostMapping("/recommend")
+    public ResponseUtils getHotelRecommendation(@RequestBody JSONObject jsonObject){
+
+        Long num = jsonObject.getLong("num");
+
+        return hotelService.getHotelRecommendation(num);
+    }
+
 }

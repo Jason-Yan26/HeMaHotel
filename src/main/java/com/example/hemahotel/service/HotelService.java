@@ -15,4 +15,10 @@ public interface HotelService {
     /** 酒店关键字搜索*/
     public ResponseUtils searchHotelByKeyword(String searchKeyWord,int page,int pageNum,int lowerStar,int upperStar);
 
+    /** 获取酒店信息*/
+    public ResponseUtils getHotelInformation(Long hotelId);
+
+    /** 获取推荐酒店信息*/
+    public ResponseUtils getHotelRecommendation(Long num);
+
 }

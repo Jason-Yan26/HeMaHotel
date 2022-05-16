@@ -32,6 +32,7 @@ import org.springframework.data.elasticsearch.core.query.Query;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -51,6 +52,9 @@ public class HotelServiceImpl implements HotelService {
 
     @Autowired
     private ElasticsearchOperations elasticsearchOperations;
+
+    @Autowired
+    private UserRepository userRepository;
 
 
     @Override
@@ -81,8 +85,24 @@ public class HotelServiceImpl implements HotelService {
 
         List<Comment> comments = commentRepository.findByHotelId(hotelId);
 
+        List<JSONObject> jsonObjects = new ArrayList<>();
+        for(Comment comment:comments){
+            JSONObject jsonObject1 = new JSONObject();
+            jsonObject1.put("id",comment.getId());
+            jsonObject1.put("hotelId",comment.getHotelId());
+            jsonObject1.put("content",comment.getContent());
+            jsonObject1.put("star",comment.getStar());
+
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            jsonObject1.put("createTime",sdf.format(comment.getCreateTime()));
+            jsonObject1.put("userId",comment.getUserId());
+
+            jsonObject1.put("userName",userRepository.findById(comment.getUserId()).get().getUsername());
+            jsonObjects.add(jsonObject1);
+        }
+
         if(!comments.isEmpty()){
-            return ResponseUtils.success("查找成功", comments);
+            return ResponseUtils.success("评论查找成功", jsonObjects);
         }
         else{
             JSONObject jsonObject = new JSONObject();
@@ -182,6 +202,19 @@ public class HotelServiceImpl implements HotelService {
             hotelMatches.add(searchHit.getContent());
         });
 
+
+        //不分页，获取当前查询的记录总数
+        Query searchQueryTotal = new NativeSearchQueryBuilder()
+                .withQuery(functionScoreQueryBuilder)
+                //筛选条件匹配
+                .withFilter(boolQueryBuilder)
+                .build();
+
+        SearchHits<SearchHotel> hotelHitsTotal =
+                elasticsearchOperations.search(searchQuery, SearchHotel.class, IndexCoordinates.of("hotel"));
+
+        Long totalNumber = hotelHitsTotal.getTotalHits();
+
         //如果得到的列表为空， 抛出异常
         if (hotelMatches.size() != 0){
             JSONArray jsonArray = new JSONArray();
@@ -192,13 +225,90 @@ public class HotelServiceImpl implements HotelService {
                 jsonObject1.put("location",hotel.getLocation());
                 jsonObject1.put("star",hotel.getStar());
                 jsonObject1.put("description",hotel.getDescription());
+
+                //由于es中没有存储酒店图片,根据id到数据库中去查找
+                Long hotelId = hotel.getId();
+                String picture = hotelRepository.findById(hotelId).get().getPicture();
+                jsonObject1.put("picture",picture);
+
                 jsonArray.add(jsonObject1);
             }
             jsonObject.put("hotels",jsonArray);
+            jsonObject.put("totalNumber",totalNumber);
 
             return ResponseUtils.response(200, "酒店关键字搜索成功", jsonObject);
         }
         else
             return ResponseUtils.response(404, "酒店关键字搜索失败", jsonObject);
+    }
+
+
+    /** 获取酒店信息*/
+    public ResponseUtils getHotelInformation(Long hotelId){
+        JSONObject jsonObject = new JSONObject();
+        Optional<Hotel> h = hotelRepository.findById(hotelId);
+
+        if(h.isPresent()){
+            Hotel hotel = h.get();
+            jsonObject.put("information",hotel);
+            return ResponseUtils.response(200, "酒店信息获取成功", jsonObject);
+        }
+
+        return ResponseUtils.response(404, "酒店信息获取失败", jsonObject);
+    }
+
+    /** 获取推荐酒店信息*/
+    public ResponseUtils getHotelRecommendation(Long num){
+        JSONObject jsonObject = new JSONObject();
+
+        BoolQueryBuilder boolQueryBuilder =
+                QueryBuilders.boolQuery()
+                        //酒店星级匹配
+                        .must(QueryBuilders.rangeQuery("star").from(5).to(5));
+
+        Query searchQuery;
+
+        searchQuery = new NativeSearchQueryBuilder()
+                //筛选条件匹配
+                .withFilter(boolQueryBuilder)
+                //分页匹配
+                .withPageable(PageRequest.of(0, num.intValue()))
+                .build();
+
+        // 2. Execute search
+        SearchHits<SearchHotel> hotelHits =
+                elasticsearchOperations.search(searchQuery, SearchHotel.class, IndexCoordinates.of("hotel"));
+
+        // 3. Map searchHits to product list
+        List<SearchHotel> hotelMatches = new ArrayList<SearchHotel>();
+        hotelHits.forEach(searchHit -> {
+            hotelMatches.add(searchHit.getContent());
+        });
+
+        //如果得到的列表为空， 抛出异常
+        if (hotelMatches.size() != 0){
+            JSONArray jsonArray = new JSONArray();
+            for(SearchHotel hotel:hotelMatches){
+                JSONObject jsonObject1 = new JSONObject();
+                jsonObject1.put("id",hotel.getId());
+                jsonObject1.put("name",hotel.getName());
+                jsonObject1.put("location",hotel.getLocation());
+                jsonObject1.put("star",hotel.getStar());
+                jsonObject1.put("description",hotel.getDescription());
+
+                //由于es中没有存储酒店图片,根据id到数据库中去查找
+                Long hotelId = hotel.getId();
+                String picture = hotelRepository.findById(hotelId).get().getPicture();
+                jsonObject1.put("picture",picture);
+
+                jsonArray.add(jsonObject1);
+            }
+            jsonObject.put("hotels",jsonArray);
+
+            return ResponseUtils.response(200, "酒店推荐成功", jsonObject);
+        }
+        else
+            return ResponseUtils.response(404, "酒店推荐失败", jsonObject);
+
     }
 }

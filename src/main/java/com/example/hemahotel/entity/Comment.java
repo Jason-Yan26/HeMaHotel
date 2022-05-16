@@ -20,18 +20,18 @@ public class Comment {
     private Long id;//评论id
 
     @Column
-    private String content;//评论
+    private String content;//评论内容
 
     @Column
     private Long userId;//用户id
 
     @Column
-    private Long hotelId;//商品id
+    private Long hotelId;//酒店id
 
     @Column
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private Timestamp createTime;//商品更新时间
+    private Timestamp createTime;//评论时间
 
     @Column
-    private int star;//酒店评分
+    private int star;//酒店评价星级
 }
