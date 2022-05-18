@@ -203,17 +203,17 @@ public class HotelServiceImpl implements HotelService {
         });
 
 
-        //不分页，获取当前查询的记录总数
-        Query searchQueryTotal = new NativeSearchQueryBuilder()
-                .withQuery(functionScoreQueryBuilder)
-                //筛选条件匹配
-                .withFilter(boolQueryBuilder)
-                .build();
-
-        SearchHits<SearchHotel> hotelHitsTotal =
-                elasticsearchOperations.search(searchQuery, SearchHotel.class, IndexCoordinates.of("hotel"));
-
-        Long totalNumber = hotelHitsTotal.getTotalHits();
+//        //不分页，获取当前查询的记录总数
+//        Query searchQueryTotal = new NativeSearchQueryBuilder()
+//                .withQuery(functionScoreQueryBuilder)
+//                //筛选条件匹配
+//                .withFilter(boolQueryBuilder)
+//                .build();
+//
+//        SearchHits<SearchHotel> hotelHitsTotal =
+//                elasticsearchOperations.search(searchQuery, SearchHotel.class, IndexCoordinates.of("hotel"));
+//
+//        Long totalNumber = hotelHitsTotal.getTotalHits();
 
         //如果得到的列表为空， 抛出异常
         if (hotelMatches.size() != 0){
@@ -234,7 +234,8 @@ public class HotelServiceImpl implements HotelService {
                 jsonArray.add(jsonObject1);
             }
             jsonObject.put("hotels",jsonArray);
-            jsonObject.put("totalNumber",totalNumber);
+//            jsonObject.put("hotels",hotelMatches);
+            jsonObject.put("totalNumber",hotelHits.getTotalHits());
 
             return ResponseUtils.response(200, "酒店关键字搜索成功", jsonObject);
         }

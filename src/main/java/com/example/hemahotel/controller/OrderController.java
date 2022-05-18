@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
+import java.sql.Date;
 import java.sql.Timestamp;
 
 @RestController
@@ -30,7 +31,7 @@ public class OrderController {
         return orderService.getAllInformation(id);
     }
 
-    /** 订单删除窗口 */
+    /** 订单删除接口 */
     @PostMapping("/delete")
     public ResponseUtils deleteInformationById(@RequestBody JSONObject jsonObject, HttpServletRequest request) {
 
@@ -48,12 +49,13 @@ public class OrderController {
         String token = request.getHeader("token");
         Long id = Long.valueOf(JWTUtils.getUserId(token));
 
-        // 客房类型、预订数量、预订时间
+        // 客房类型、预订数量、预订开始时间、预订结束时间
         Long roomCategoryId = jsonObject.getLong("roomCategoryId");
         Integer num = jsonObject.getInteger("number");
-        Timestamp reservationTime = new Timestamp(System.currentTimeMillis());
+        Date startTime = Date.valueOf(jsonObject.getString("startTime"));
+        Date endTime = Date.valueOf(jsonObject.getString("endTime"));
 
-        return orderService.createOrder(id,roomCategoryId,reservationTime,num);
+        return orderService.createOrder(id,roomCategoryId,num,startTime,endTime);
     }
 
     /** 订单支付接口 */

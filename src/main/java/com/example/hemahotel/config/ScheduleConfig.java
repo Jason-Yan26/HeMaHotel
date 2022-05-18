@@ -42,6 +42,7 @@ public class ScheduleConfig {
             searchHotels.add(SearchHotel.builder()
                     .id(h.getId())
                     .name(h.getName())
+//                    .picture(h.getPicture())
                     .location(h.getLocation())
                     .star(h.getStar())
                     .suggestion(suggest)

@@ -2,14 +2,15 @@ package com.example.hemahotel.service;
 
 import com.example.hemahotel.utils.ResponseUtils;
 
+import java.sql.Date;
 import java.sql.Timestamp;
 
 public interface OrderService {
-    ResponseUtils getAllInformation(Long userId);
+    public ResponseUtils getAllInformation(Long userId);
 
-    ResponseUtils deleteInformationById(Long userId, Long orderId);
+    public ResponseUtils deleteInformationById(Long userId, Long orderId);
 
-    ResponseUtils createOrder(Long userId, Long roomCategory, Timestamp reservationTime, Integer reservationNum);
+    public ResponseUtils createOrder(Long userId, Long roomCategoryId, Integer reservationNum, Date startTime,Date endTime);
 
-    ResponseUtils toPayOrder(Long userId, Long orderId, String payType);
+    public ResponseUtils toPayOrder(Long userId, Long orderId, String payType);
 }

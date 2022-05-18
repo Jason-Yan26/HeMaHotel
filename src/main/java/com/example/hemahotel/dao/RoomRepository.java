@@ -10,4 +10,8 @@ public interface RoomRepository extends JpaRepository<Room, Long> {
     Optional<Room> findById(Long Id);
 
     List<Room> findByRoomCategoryIdAndStatus(Long roomCategory,Integer status);//用于找空闲的某个房型的房间序列
+
+
+    /**找个某个RoomCategoryId的所有room*/
+    List<Room> findByRoomCategoryId(Long roomCategory);
 }

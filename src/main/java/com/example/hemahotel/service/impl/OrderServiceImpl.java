@@ -14,6 +14,7 @@ import com.example.hemahotel.utils.ResponseUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.sql.Date;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
@@ -72,32 +73,75 @@ public class OrderServiceImpl implements OrderService {
         }
     }
 
-    /** 创建一个订单 */
-    @Override
-    public ResponseUtils createOrder(Long userId, Long roomCategoryId, Timestamp reservationTime, Integer reservationNum) {
+    /** 创建订单 */
+    public ResponseUtils createOrder(Long userId, Long roomCategoryId, Integer reservationNum, Date startTime, Date endTime){
 
         JSONObject jsonObject = new JSONObject();
+
         Optional<RoomCategory> rc = roomCategoryRepository.findById(roomCategoryId);
 
         if(!rc.isPresent()){
             return ResponseUtils.response(400, "订单所选房型不存在，请重新选择", jsonObject);
         }
         else {
-            Double price = rc.get().getPrice()*reservationNum;//每间房价格*数量
-            Order newOrder=new Order(userId, roomCategoryId,reservationNum, 1, price, reservationTime);//1:未支付
-            orderRepository.save(newOrder);
-            List<Room> rooms = roomRepository.findByRoomCategoryIdAndStatus(roomCategoryId,0);//返回空闲的房间
-            Integer num = 0;
+            //找到属于该roomCategory的所有room
+            List<Room> rooms = roomRepository.findByRoomCategoryId(roomCategoryId);
+            List<Long> roomIds = new ArrayList<>();//可以预订的客房的id
+
+
+            int room_can_reserve = 0;//可以预订的房间数量
+
             for(Room room:rooms){
-                room.setStatus(1); // 更新房间状态
-                roomRepository.save(room);
-                Reservation reservation = new Reservation(userId,newOrder.getId(),room.getId(),reservationTime); // 这里面还有guestId
-                reservationRepository.save(reservation);
-                num+=1;
-                if(num.equals(reservationNum))break;
+                List<Reservation> reservations = reservationRepository.findByRoomId(room.getId());
+
+                int conflict = 0;
+
+                for(Reservation reservation:reservations){
+                    Date startTime_Reserved = reservation.getStartTime();
+                    Date endTime_Reserved = reservation.getEndTime();
+
+                    //如果该房间已有的预订的结束时间小于等于 当前预订的开始时间
+                    //或 已有的预订的开始时间 大于等于 当前预订的结束时间，则该房间可以被预订
+
+                    if(!(endTime_Reserved.before(startTime) || endTime_Reserved.equals(startTime)
+                    || startTime_Reserved.after(endTime) || startTime_Reserved.equals(endTime))){
+                        conflict++;
+                        break;
+                    }
+                }
+                //如果该房间已有的预订和当前预订的时间不冲突，则该房间可以预订。
+                if(conflict == 0) {
+                    roomIds.add(room.getId());
+                    room_can_reserve++;
+                }
+
+                if(room_can_reserve == reservationNum)
+                    break;
             }
-            jsonObject.put("orderId",newOrder.getId());
-            return ResponseUtils.response(200, "订单创建成功", jsonObject);
+
+            //当前剩余房间满足预订需求
+            if(room_can_reserve == reservationNum){
+
+                Double price = rc.get().getPrice()*reservationNum;//每间房价格*数量
+                Timestamp createTime = new Timestamp(System.currentTimeMillis());
+                Order newOrder=new Order(userId, roomCategoryId,reservationNum, 1, price, createTime);//status=1:未支付
+                orderRepository.save(newOrder);
+
+                int ithRoom = 1;
+                for(Long roomId:roomIds){
+                    reservationRepository.save(new Reservation(userId,newOrder.getId(),roomId,Long.valueOf(ithRoom),startTime,endTime));
+                    ithRoom++;
+                }
+
+                jsonObject.put("orderId",newOrder.getId());
+                return ResponseUtils.response(200, "订单创建成功", jsonObject);
+
+
+            }
+            //当前剩余房间数量不足
+            else{
+                return ResponseUtils.response(401, "该类型客房剩余"+room_can_reserve+"间，无法满足预订需求！", jsonObject);
+            }
         }
     }
 

@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.sql.Date;
 import java.sql.Time;
 import java.sql.Timestamp;
 
@@ -41,16 +42,18 @@ public class Reservation {
     private Long guestId3;
 
     @Column
-    private Timestamp startTime;
+    private Date startTime;
 
     @Column
-    private Timestamp endTime;
+    private Date endTime;
 
-    public Reservation(Long userId, Long orderId, Long roomId,Timestamp startTime){
+    public Reservation(Long userId, Long orderId, Long roomId,Long orderIthRoom,Date startTime,Date endTime){
         this.userId=userId;
         this.orderId=orderId;
         this.roomId=roomId;
+        this.orderIthRoom = orderIthRoom;
         this.startTime=startTime;
+        this.endTime = endTime;
     }
 
 }
