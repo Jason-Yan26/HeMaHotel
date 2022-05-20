@@ -9,6 +9,7 @@ import com.example.hemahotel.entity.*;
 import com.example.hemahotel.jwt.JWTUtils;
 import com.example.hemahotel.service.UserService;
 import com.example.hemahotel.utils.ResponseUtils;
+import com.example.hemahotel.utils.SecurityUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -44,6 +45,7 @@ public class UserServiceImpl  implements UserService {
     @Autowired
     private HotelRepository hotelRepository;
 
+
     private SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy/MM/dd/");
 
     //服务器地址
@@ -61,7 +63,10 @@ public class UserServiceImpl  implements UserService {
 
             Timestamp createTime = new Timestamp(System.currentTimeMillis());
             Timestamp updateTime = new Timestamp(System.currentTimeMillis());
-            User user = new User(telephone, password, telephone, 0, createTime, updateTime);
+
+            String password_security = SecurityUtils.encodePassword(password);
+
+            User user = new User(telephone, password_security, telephone, 0, createTime, updateTime);
 
             userRepository.save(user);
 
@@ -89,7 +94,10 @@ public class UserServiceImpl  implements UserService {
 
         Optional<User> user = userRepository.findByPhoneOrEmail(teleEmail,teleEmail);
         if(user.isPresent()){
-            if(user.get().getPassword().equals(password)){
+
+            String password_security =  user.get().getPassword();//数据库中存储的加密后的密码
+
+            if(SecurityUtils.matchesPassword(password,password_security)){
                 Map<String, String> map = new HashMap<>();
                 map.put("id",user.get().getId().toString());
                 map.put("phone",user.get().getPhone());

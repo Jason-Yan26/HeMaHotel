@@ -4,6 +4,9 @@ import com.example.hemahotel.utils.ResponseUtils;
 
 public interface GuestService {
 
+    /**查询住客*/
+    public ResponseUtils getGuest(Long uesrId);
+
     /**增加住客*/
     public ResponseUtils addGuest(Long id,String guestName,String guestPhone,String guestIdNumber);
 

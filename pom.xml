@@ -96,6 +96,12 @@
             <artifactId>alipay-easysdk</artifactId>
             <version>2.2.0</version>
         </dependency>
+        <!-- Spring Security-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+            <version>2.5.2</version>
+        </dependency>
 
 <!--        <dependency>-->
 <!--            <groupId>org.elasticsearch.plugin</groupId>-->

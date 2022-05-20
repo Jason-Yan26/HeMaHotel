@@ -8,4 +8,7 @@ import java.util.List;
 public interface GuestRepository extends JpaRepository<Guest,Long> {
 
     List<Guest> findAllByUserIdOrderByUpdateTimeDesc(Long userId);
+
+
+    List<Guest> findByUserId(Long userId);
 }

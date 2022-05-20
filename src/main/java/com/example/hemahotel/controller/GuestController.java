@@ -20,6 +20,17 @@ public class GuestController {
     @Autowired
     private GuestService guestService;
 
+
+    /**查询住客接口*/
+    @PostMapping("/get")
+    public ResponseUtils getGuest(HttpServletRequest request) {
+        //从token中获取id
+        String token = request.getHeader("token");
+        Long userId = Long.valueOf(JWTUtils.getUserId(token));
+
+        return guestService.getGuest(userId);
+    }
+
     /**增加住客接口*/
     @PostMapping("/add")
     public ResponseUtils addGuest(@RequestBody JSONObject jsonObject, HttpServletRequest request) {

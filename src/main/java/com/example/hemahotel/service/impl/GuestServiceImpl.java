@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -18,6 +19,14 @@ public class GuestServiceImpl implements GuestService {
     private GuestRepository guestRepository;
 
     private JSONObject jsonObject;
+
+    /**查询住客*/
+    public ResponseUtils getGuest(Long userId){
+        jsonObject = new JSONObject();
+        List<Guest> guests = guestRepository.findByUserId(userId);
+        jsonObject.put("guests",guests);
+        return ResponseUtils.response(200,"住客查询成功", jsonObject);
+    }
 
     /**增加住客*/
     public ResponseUtils addGuest(Long id, String guestName, String guestPhone, String guestIdNumber){
