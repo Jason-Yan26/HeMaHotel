@@ -21,7 +21,7 @@ import java.util.Map;
 import java.util.Optional;
 
 @Controller
-@CrossOrigin
+@CrossOrigin(origins = "*")
 @RequestMapping("/api/alipay")
 public class AlipayController {
 

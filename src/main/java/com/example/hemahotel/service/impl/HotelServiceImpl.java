@@ -4,11 +4,10 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.example.hemahotel.dao.CommentRepository;
 import com.example.hemahotel.dao.HotelRepository;
+import com.example.hemahotel.dao.RoomCategoryRepository;
 import com.example.hemahotel.dao.UserRepository;
 import com.example.hemahotel.elasticSearch.SearchHotel;
-import com.example.hemahotel.entity.Comment;
-import com.example.hemahotel.entity.Hotel;
-import com.example.hemahotel.entity.User;
+import com.example.hemahotel.entity.*;
 import com.example.hemahotel.service.HotelService;
 import com.example.hemahotel.utils.ResponseUtils;
 import org.elasticsearch.action.search.SearchResponse;
@@ -55,6 +54,9 @@ public class HotelServiceImpl implements HotelService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private RoomCategoryRepository roomCategoryRepository;
 
 
     @Override
@@ -230,6 +232,14 @@ public class HotelServiceImpl implements HotelService {
                 Long hotelId = hotel.getId();
                 String picture = hotelRepository.findById(hotelId).get().getPicture();
                 jsonObject1.put("picture",picture);
+                //返回最低价格
+                List<RoomCategory> roomCategories = roomCategoryRepository.findByHotelId(hotel.getId());
+                Double min_price = 99999.0;
+                for(RoomCategory roomCategory:roomCategories){
+                    if(roomCategory.getPrice() < min_price)
+                        min_price = roomCategory.getPrice();
+                }
+                jsonObject1.put("price",min_price);
 
                 jsonArray.add(jsonObject1);
             }
@@ -301,6 +311,16 @@ public class HotelServiceImpl implements HotelService {
                 Long hotelId = hotel.getId();
                 String picture = hotelRepository.findById(hotelId).get().getPicture();
                 jsonObject1.put("picture",picture);
+
+                //返回最低价格
+                List<RoomCategory> roomCategories = roomCategoryRepository.findByHotelId(hotel.getId());
+                Double min_price = 99999.0;
+                for(RoomCategory roomCategory:roomCategories){
+                    if(roomCategory.getPrice() < min_price)
+                        min_price = roomCategory.getPrice();
+                }
+                jsonObject1.put("price",min_price);
+
 
                 jsonArray.add(jsonObject1);
             }
