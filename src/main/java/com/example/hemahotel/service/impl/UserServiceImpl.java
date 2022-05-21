@@ -155,10 +155,13 @@ public class UserServiceImpl  implements UserService {
         //用户存在
         else {
             User user = u.get();
-            String password = user.getPassword();
+            String password_security = user.getPassword();
             //用户输入原始密码与数据库保持一致,还未加密密码
-            if(oldPassword.equals(password)){
-                user.setPassword(newPassword);
+            if(SecurityUtils.matchesPassword(oldPassword,password_security)){
+
+                String newPassword_security = SecurityUtils.encodePassword(newPassword);
+
+                user.setPassword(newPassword_security);x
                 userRepository.save(user);
                 return ResponseUtils.response(200,"用户密码修改成功", jsonObject);
             }
