@@ -18,7 +18,7 @@ public class RoomCategoryServiceImpl implements RoomCategoryService {
     private RoomCategoryRepository roomCategoryRepository;
 
     @Override
-    public ResponseUtils GetRoomInformationByHotelId(Long hotelId) {
+    public ResponseUtils getRoomInformationByHotelId(Long hotelId) {
 
         JSONObject jsonObject = new JSONObject();
         List<RoomCategory> roomInformation = roomCategoryRepository.findByHotelId(hotelId);
@@ -33,7 +33,7 @@ public class RoomCategoryServiceImpl implements RoomCategoryService {
     }
 
     @Override
-    public ResponseUtils GetRoomInformationByHotelIdAndRoomCategoryId(Long hotelId, Long RoomCategoryId) {
+    public ResponseUtils getRoomInformationByHotelIdAndRoomCategoryId(Long hotelId, Long RoomCategoryId) {
 
         JSONObject jsonObject = new JSONObject();
         Optional<RoomCategory> r = roomCategoryRepository.findByIdAndHotelId(RoomCategoryId,hotelId);

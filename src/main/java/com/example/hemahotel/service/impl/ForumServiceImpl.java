@@ -82,4 +82,14 @@ public class ForumServiceImpl implements ForumService {
             return ResponseUtils.success("查找帖子成功", jsonObject);
         }
     }
+
+    @Override
+    public ResponseUtils getForumNum() {
+
+        Long number = forumRepository.count();
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("forumNum",number);
+        return ResponseUtils.response(200, "论坛帖子总数获取成功", jsonObject);
+
+    }
 }

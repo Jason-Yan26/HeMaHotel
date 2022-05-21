@@ -38,13 +38,20 @@ public class ForumController {
 
     //查询所有帖子信息
     @PostMapping("/getAll")
-    public ResponseUtils getAll(@RequestBody JSONObject jsonObject) {
+    public ResponseUtils getForumNum(@RequestBody JSONObject jsonObject) {
 
         int pageIndex = jsonObject.getInteger("pageIndex"); //当前页码（注意：第一页是从0开始）
         int pageSize = jsonObject.getInteger("pageSize"); //分页大小
         String sortProperty = jsonObject.getString("sortProperty");
 
         return forumService.getAll(pageIndex,pageSize,sortProperty);
+    }
+
+    @PostMapping("/totalNum")
+    public ResponseUtils getAll() {
+
+        return forumService.getForumNum();
+
     }
 
     //根据帖子id查询帖信息

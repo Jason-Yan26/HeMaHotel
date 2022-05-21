@@ -4,10 +4,11 @@ import com.example.hemahotel.utils.ResponseUtils;
 
 public interface HotelService {
 
-    public ResponseUtils CreateComment(Long userId, String comment, Long hotelId, int star);
+    public ResponseUtils createComment(Long userId, String comment, Long hotelId, int star);
 
-    public ResponseUtils findCommentByHotelId(Long productId);
+    public ResponseUtils findCommentByHotelId(Long hotelId,int pageIndex,int pageSize);
 
+    public ResponseUtils getCommentNumByHotelId(Long hotelId);
 
     /** 酒店名称自动补全*/
     public ResponseUtils hotelNameCompletion(String prefix);

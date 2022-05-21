@@ -4,10 +4,11 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.example.hemahotel.dao.CommentRepository;
 import com.example.hemahotel.dao.HotelRepository;
-import com.example.hemahotel.dao.RoomCategoryRepository;
 import com.example.hemahotel.dao.UserRepository;
 import com.example.hemahotel.elasticSearch.SearchHotel;
-import com.example.hemahotel.entity.*;
+import com.example.hemahotel.entity.Comment;
+import com.example.hemahotel.entity.Hotel;
+import com.example.hemahotel.entity.User;
 import com.example.hemahotel.service.HotelService;
 import com.example.hemahotel.utils.ResponseUtils;
 import org.elasticsearch.action.search.SearchResponse;
@@ -111,6 +112,16 @@ public class HotelServiceImpl implements HotelService {
             jsonObject.put("hotelId",hotelId);
             return ResponseUtils.response(400, "找不到相关评论", jsonObject);
         }
+    }
+
+    @Override
+    public ResponseUtils getCommentNumByHotelId(Long hotelId) {
+
+        Long number = commentRepository.countByHotelId(hotelId);
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("commentNum",number);
+        return ResponseUtils.response(200, "酒店评论总数获取成功", jsonObject);
+
     }
 
     /** 酒店搜索自动补全*/
