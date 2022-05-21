@@ -1,10 +1,6 @@
 package com.example.hemahotel.controller;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.example.hemahotel.dao.RoomRepository;
-import com.example.hemahotel.entity.Reservation;
-import com.example.hemahotel.entity.RoomCategory;
 import com.example.hemahotel.service.HotelService;
 import com.example.hemahotel.service.RoomCategoryService;
 import com.example.hemahotel.service.RoomService;
@@ -32,15 +28,27 @@ public class HotelController {
 
           Long hotelId = jsonObject.getLong("hotelId");
 
-          return hotelService.findCommentByHotelId(hotelId);
+          //获取酒店评论相关信息
+          int pageIndex = jsonObject.getInteger("pageIndex"); //当前页码（注意：第一页是从0开始）
+          int pageSize = jsonObject.getInteger("pageSize"); //分页大小
+
+          return hotelService.findCommentByHotelId(hotelId,pageIndex,pageSize);
       }
+
+    @PostMapping("/comment/totalNum")
+    public ResponseUtils GetCommentNumByHotelId(@RequestBody JSONObject jsonObject){
+
+        Long hotelId = jsonObject.getLong("hotelId");
+
+        return hotelService.getCommentNumByHotelId(hotelId);
+    }
 
     @PostMapping("/room/information/all")
     public ResponseUtils GetRoomInformationAll(@RequestBody JSONObject jsonObject){
 
         Long hotelId=jsonObject.getLong("hotelId");
 
-        return roomCategoryService.GetRoomInformationByHotelId(hotelId);
+        return roomCategoryService.getRoomInformationByHotelId(hotelId);
     }
 
     /** 获取某一房型当前的空闲房间数 */
@@ -58,7 +66,7 @@ public class HotelController {
         Long hotelId=jsonObject.getLong("hotelId");
         Long roomCategoryId=jsonObject.getLong("roomCategoryId");
 
-        return roomCategoryService.GetRoomInformationByHotelIdAndRoomCategoryId(hotelId,roomCategoryId);
+        return roomCategoryService.getRoomInformationByHotelIdAndRoomCategoryId(hotelId,roomCategoryId);
     }
 
     /** 酒店名称自动补全接口*/

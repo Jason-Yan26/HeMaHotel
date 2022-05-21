@@ -11,11 +11,13 @@ import java.util.List;
 public interface CommentRepository extends JpaRepository<Comment, Long> {
 
     // 根据酒店Id查找评论
-    public List<Comment> findByHotelId(Long productId);
+    Page<Comment> findByHotelId(Long hotelId, Pageable pageable);
 
     // 获取用户评论
     Page<Comment> findAllByUserId(Long userId, Pageable pageable); //JPA 分页类
 
     // 获取用户评论总数
-    public Long countByUserId(Long userId);
+    Long countByUserId(Long userId);
+
+    Long countByHotelId(Long hotelId);
 }

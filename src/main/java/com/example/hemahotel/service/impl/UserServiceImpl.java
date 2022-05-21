@@ -161,7 +161,7 @@ public class UserServiceImpl  implements UserService {
 
                 String newPassword_security = SecurityUtils.encodePassword(newPassword);
 
-                user.setPassword(newPassword_security);x
+                user.setPassword(newPassword_security);
                 userRepository.save(user);
                 return ResponseUtils.response(200,"用户密码修改成功", jsonObject);
             }

@@ -1,28 +1,20 @@
 package com.example.hemahotel.controller;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import com.example.hemahotel.entity.User;
 import com.example.hemahotel.jwt.JWTUtils;
 import com.example.hemahotel.service.HotelService;
 import com.example.hemahotel.service.UserService;
 import com.example.hemahotel.utils.ResponseUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
-import java.io.File;
-import java.io.IOException;
 import java.sql.Date;
-import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/user")
@@ -139,13 +131,13 @@ public class UserController {
         //获取用户相关信息
         String token = request.getHeader("token");
         Long id = Long.valueOf(JWTUtils.getUserId(token));
-
+        System.out.println(id);
         //获取酒店相关信息
         String comment = jsonObject.getString("comment");
         Long hotelId = jsonObject.getLong("hotelId");
         Integer star = jsonObject.getInteger("star") == null ? 5 : jsonObject.getInteger("star");
 
-        return hotelService.CreateComment(id,comment,hotelId,star);
+        return hotelService.createComment(id,comment,hotelId,star);
     }
 
     @PostMapping("/comment")

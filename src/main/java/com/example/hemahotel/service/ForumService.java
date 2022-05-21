@@ -10,4 +10,6 @@ public interface ForumService {
     public ResponseUtils getAll(Integer pageIndex, Integer pageSize, String sortProperty);
 
     public ResponseUtils findById(Long Id);
+
+    public ResponseUtils getForumNum();
 }

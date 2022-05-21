@@ -8,7 +8,6 @@ import com.example.hemahotel.dao.UserRepository;
 import com.example.hemahotel.elasticSearch.SearchHotel;
 import com.example.hemahotel.entity.Comment;
 import com.example.hemahotel.entity.Hotel;
-import com.example.hemahotel.entity.User;
 import com.example.hemahotel.service.HotelService;
 import com.example.hemahotel.utils.ResponseUtils;
 import org.elasticsearch.action.search.SearchResponse;
@@ -22,7 +21,10 @@ import org.elasticsearch.search.suggest.SuggestBuilder;
 import org.elasticsearch.search.suggest.SuggestBuilders;
 import org.elasticsearch.search.suggest.completion.CompletionSuggestionBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
 import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
 import org.springframework.data.elasticsearch.core.SearchHits;
@@ -58,7 +60,7 @@ public class HotelServiceImpl implements HotelService {
 
 
     @Override
-    public ResponseUtils CreateComment(Long userId, String comment, Long hotelId, int star) {
+    public ResponseUtils createComment(Long userId, String comment, Long hotelId, int star) {
 
         JSONObject jsonObject = new JSONObject();
         Optional<Hotel> h = hotelRepository.findById(hotelId);
@@ -81,12 +83,14 @@ public class HotelServiceImpl implements HotelService {
     }
 
     @Override
-    public ResponseUtils findCommentByHotelId(Long hotelId) {
+    public ResponseUtils findCommentByHotelId(Long hotelId,int pageIndex,int pageSize) {
 
-        List<Comment> comments = commentRepository.findByHotelId(hotelId);
+        Sort sort = Sort.by(Sort.Order.desc("createTime")); // property:排序属性
+        Pageable pageable = PageRequest.of(pageIndex, pageSize, sort);
+        Page<Comment> comments = commentRepository.findByHotelId(hotelId,pageable);
 
         List<JSONObject> jsonObjects = new ArrayList<>();
-        for(Comment comment:comments){
+        for(Comment comment:comments.getContent()){
             JSONObject jsonObject1 = new JSONObject();
             jsonObject1.put("id",comment.getId());
             jsonObject1.put("hotelId",comment.getHotelId());
@@ -96,7 +100,7 @@ public class HotelServiceImpl implements HotelService {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             jsonObject1.put("createTime",sdf.format(comment.getCreateTime()));
             jsonObject1.put("userId",comment.getUserId());
-
+            System.out.println(comment.getUserId());
             jsonObject1.put("userName",userRepository.findById(comment.getUserId()).get().getUsername());
             jsonObjects.add(jsonObject1);
         }
@@ -109,6 +113,16 @@ public class HotelServiceImpl implements HotelService {
             jsonObject.put("hotelId",hotelId);
             return ResponseUtils.response(400, "找不到相关评论", jsonObject);
         }
+    }
+
+    @Override
+    public ResponseUtils getCommentNumByHotelId(Long hotelId) {
+
+        Long number = commentRepository.countByHotelId(hotelId);
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("commentNum",number);
+        return ResponseUtils.response(200, "酒店评论总数获取成功", jsonObject);
+
     }
 
     /** 酒店搜索自动补全*/
