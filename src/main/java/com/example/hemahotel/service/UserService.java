@@ -26,7 +26,7 @@ public interface UserService {
     /** 用户个人信息修改(不包含头像) */
     public ResponseUtils informationModify(Long userId, String username, Integer gender, Date birthDate,
                                            Integer age, String signature, String preference_label,
-                                           String address, String email, String phone);
+                                           String address);
     /** 用户头像上传 */
     public ResponseUtils avatarUpload(Long userId, MultipartFile file, String urlPrefix);
 

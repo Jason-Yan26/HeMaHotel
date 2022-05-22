@@ -174,7 +174,7 @@ public class UserServiceImpl  implements UserService {
     /** 修改用户个人信息*/
     public ResponseUtils informationModify(Long userId, String username, Integer gender, Date birthDate,
                                            Integer age, String signature, String preference_label,
-                                           String address, String email, String phone){
+                                           String address){
         jsonObject = new JSONObject();
         Optional<User> u = userRepository.findById(userId);
 
@@ -196,26 +196,27 @@ public class UserServiceImpl  implements UserService {
 
             user.setGender(gender);
             user.setBirthDate(birthDate);
-            //user.setAge(age);
-            //user.setSignature(signature);
-            //user.setPreferenceLabel(preference_label);
-            //user.setAddress(address);
+            //user.setAge(age)
+            user.setSignature(signature);
+            user.setPreferenceLabel(preference_label);
+            user.setAddress(address);
 
-            user1 = userRepository.findByPhone(phone);
-            if(user1.isPresent()) {
-                if(!user1.get().getId().equals(userId)){
-                    return ResponseUtils.response(402,"用户所输手机号已被绑定，请重新绑定用户手机号", jsonObject);
-                }
-            }
-            user.setPhone(phone);
+            //默认手机号不可修改，邮箱需要获取验证码进行绑定
+//            user1 = userRepository.findByPhone(phone);
+//            if(user1.isPresent()) {
+//                if(!user1.get().getId().equals(userId)){
+//                    return ResponseUtils.response(402,"用户所输手机号已被绑定，请重新绑定用户手机号", jsonObject);
+//                }
+//            }
+//            user.setPhone(phone);
 
-            user1 = userRepository.findByEmail(email);
-            if(user1.isPresent()) {
-                if(!user1.get().getId().equals(userId)){
-                    return ResponseUtils.response(403,"用户所输邮箱已被绑定，请重新绑定用户邮箱", jsonObject);
-                }
-            }
-            user.setEmail(email);
+//            user1 = userRepository.findByEmail(email);
+//            if(user1.isPresent()) {
+//                if(!user1.get().getId().equals(userId)){
+//                    return ResponseUtils.response(403,"用户所输邮箱已被绑定，请重新绑定用户邮箱", jsonObject);
+//                }
+//            }
+//            user.setEmail(email);
 
             userRepository.save(user);
             return ResponseUtils.response(200,"用户个人信息修改成功", jsonObject);

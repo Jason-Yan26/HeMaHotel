@@ -43,17 +43,15 @@ public class User {
     @Column
     private Date birthDate;//出生年月
 
-    //@Column
-    //private Integer age;//年龄
 
-    //@Column
-    //private String signature;//个性签名
+    @Column
+    private String signature;//个性签名
 
-    //@Column
-    //private String preferenceLabel;//个人偏好标签
+    @Column
+    private String preferenceLabel;//个人偏好标签
 
-    //@Column
-    //private String address;//现居地
+    @Column
+    private String address;//现居地
 
     @Column
     private Integer identity;//身份

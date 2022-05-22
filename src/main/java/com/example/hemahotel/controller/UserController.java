@@ -103,13 +103,10 @@ public class UserController {
 
         String signature = jsonObject.getString("signature");
         String preferenceLabel = jsonObject.getString("preference_label");
-
         String address = jsonObject.getString("address");
-        String email = jsonObject.getString("email");
-        String phone = jsonObject.getString("phone");
 
         return userService.informationModify(id,username,gender,birthDate,age,signature,
-                preferenceLabel,address,email,phone);
+                preferenceLabel,address);
     }
 
     @PostMapping("/avatar/upload")
