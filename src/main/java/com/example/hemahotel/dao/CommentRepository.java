@@ -13,6 +13,8 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
     // 根据酒店Id查找评论
     Page<Comment> findByHotelId(Long hotelId, Pageable pageable);
 
+    List<Comment> findByHotelId(Long hotelId);
+
     // 获取用户评论
     Page<Comment> findAllByUserId(Long userId, Pageable pageable); //JPA 分页类
 

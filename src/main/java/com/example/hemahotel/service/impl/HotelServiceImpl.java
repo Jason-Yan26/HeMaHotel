@@ -279,7 +279,30 @@ public class HotelServiceImpl implements HotelService {
 
         if(h.isPresent()){
             Hotel hotel = h.get();
-            jsonObject.put("information",hotel);
+            jsonObject.put("id",hotel.getId());
+            jsonObject.put("location",hotel.getLocation());
+            jsonObject.put("star",hotel.getStar());
+            jsonObject.put("name",hotel.getName());
+            jsonObject.put("description",hotel.getDescription());
+            jsonObject.put("picture",hotel.getPicture());
+            jsonObject.put("phone",hotel.getPhone());
+
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            jsonObject.put("createTime",simpleDateFormat.format(hotel.getCreateTime()));
+
+            List<Comment> comments = commentRepository.findByHotelId(hotel.getId());
+
+            double avgScore = 0;
+            for(Comment comment:comments){
+                avgScore += comment.getStar();
+            }
+            if(comments.size() > 0 )
+                avgScore = avgScore/comments.size();
+            else
+                avgScore = -1;
+
+            jsonObject.put("avgScore",avgScore);
+
             return ResponseUtils.response(200, "酒店信息获取成功", jsonObject);
         }
 
