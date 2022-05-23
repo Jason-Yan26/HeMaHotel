@@ -1,14 +1,8 @@
 package com.example.hemahotel.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
-import com.example.hemahotel.dao.OrderRepository;
-import com.example.hemahotel.dao.ReservationRepository;
-import com.example.hemahotel.dao.RoomCategoryRepository;
-import com.example.hemahotel.dao.RoomRepository;
-import com.example.hemahotel.entity.Order;
-import com.example.hemahotel.entity.Reservation;
-import com.example.hemahotel.entity.Room;
-import com.example.hemahotel.entity.RoomCategory;
+import com.example.hemahotel.dao.*;
+import com.example.hemahotel.entity.*;
 import com.example.hemahotel.service.OrderService;
 import com.example.hemahotel.utils.ResponseUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +24,9 @@ public class OrderServiceImpl implements OrderService {
     ReservationRepository reservationRepository;
 
     @Autowired
+    private HotelRepository hotelRepository;
+
+    @Autowired
     private RoomRepository roomRepository;
 
     @Autowired
@@ -38,15 +35,55 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public ResponseUtils getAllInformation(Long userId) {
 
-        JSONObject jsonObject = new JSONObject();
         List<Order> orders = orderRepository.findByUserId(userId);
 
         if(!orders.isEmpty()){
-            List<Order> orderInformation = new ArrayList<>();
+            List<JSONObject> orderInformation = new ArrayList<>();
             for(Order o:orders)
-                if(!o.getStatus().equals(0)&&!o.getStatus().equals(3))//排除已删除/已取消订单
-                    orderInformation.add(o);
+                if(!o.getStatus().equals(0)&&!o.getStatus().equals(3)) {//排除已删除/已取消订单
+                    JSONObject jsonObject = new JSONObject();
+                    jsonObject.put("createTime",o.getCreateTime());
+                    jsonObject.put("completeTime",o.getCompleteTime());
+                    Long roomCategoryId = o.getCategoryId();
+                    RoomCategory rc = roomCategoryRepository.findById(roomCategoryId).get();
+                    jsonObject.put("roomName",rc.getName());
+                    jsonObject.put("roomNum",o.getNumber());
+                    Long hotelId=rc.getHotelId();
+                    Hotel h = hotelRepository.findById(hotelId).get();
+                    jsonObject.put("hotelName",h.getName());
+                    jsonObject.put("hotelPictureUrl",h.getPicture());
+                    jsonObject.put("status",o.getStatus());
+                    orderInformation.add(jsonObject);
+                }
             return ResponseUtils.success("订单信息获取成功",  orderInformation);
+        }
+        else {
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("userId", userId);
+            return ResponseUtils.response(400,"订单信息为空", jsonObject);
+        }
+    }
+
+    @Override
+    public ResponseUtils getById(Long userId, Long orderId) {
+
+        Optional<Order> o = orderRepository.findByIdAndUserId(orderId,userId);
+        JSONObject jsonObject = new JSONObject();
+
+        if(o.isPresent()){
+            Order order=o.get();
+            jsonObject.put("createTime",order.getCreateTime());
+            jsonObject.put("completeTime",order.getCompleteTime());
+            Long roomCategoryId = order.getCategoryId();
+            RoomCategory rc = roomCategoryRepository.findById(roomCategoryId).get();
+            jsonObject.put("roomName",rc.getName());
+            jsonObject.put("roomNum",order.getNumber());
+            Long hotelId = rc.getHotelId();
+            Hotel h = hotelRepository.findById(hotelId).get();
+            jsonObject.put("hotelName",h.getName());
+            jsonObject.put("hotelPictureUrl",h.getPicture());
+            jsonObject.put("status",order.getStatus());
+            return ResponseUtils.success("订单信息获取成功", jsonObject);
         }
         else {
             jsonObject.put("userId", userId);

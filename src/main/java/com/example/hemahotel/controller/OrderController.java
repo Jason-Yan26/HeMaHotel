@@ -29,6 +29,16 @@ public class OrderController {
         return orderService.getAllInformation(id);
     }
 
+    @PostMapping("/getById")
+    public ResponseUtils getById(@RequestBody JSONObject jsonObject, HttpServletRequest request) {
+
+        String token = request.getHeader("token");
+        Long userId = Long.valueOf(JWTUtils.getUserId(token));
+        Long orderId = jsonObject.getLong("orderId");
+
+        return orderService.getById(userId,orderId);
+    }
+
     /** 订单删除接口 */
     @PostMapping("/delete")
     public ResponseUtils deleteInformationById(@RequestBody JSONObject jsonObject, HttpServletRequest request) {
