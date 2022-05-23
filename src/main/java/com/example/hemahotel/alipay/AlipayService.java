@@ -33,7 +33,7 @@ public class AlipayService {
 
         System.out.println("到这里啦111");
         AlipayTradePagePayResponse pay = Factory.Payment.Page().pay("河马酒店平台订单",orderId,
-                paymentMoney,"https://www.baidu.com");
+                paymentMoney,"http://47.97.159.44");
 
         System.out.println("到这里啦222");
         String payForm = null;

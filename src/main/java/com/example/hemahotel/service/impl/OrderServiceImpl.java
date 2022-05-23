@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.sql.Date;
 import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -42,18 +43,39 @@ public class OrderServiceImpl implements OrderService {
             for(Order o:orders)
                 if(!o.getStatus().equals(0)&&!o.getStatus().equals(3)) {//排除已删除/已取消订单
                     JSONObject jsonObject = new JSONObject();
-                    jsonObject.put("createTime",o.getCreateTime());
-                    jsonObject.put("completeTime",o.getCompleteTime());
+
+
+                    //获取订单的状态、创建时间、完成时间、预订房间数量
+                    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                    jsonObject.put("createTime",simpleDateFormat.format(o.getCreateTime()));
+                    if(o.getCompleteTime() != null)
+                        jsonObject.put("completeTime",simpleDateFormat.format(o.getCompleteTime()));
+
                     Long roomCategoryId = o.getCategoryId();
                     RoomCategory rc = roomCategoryRepository.findById(roomCategoryId).get();
-                    jsonObject.put("roomName",rc.getName());
+                    jsonObject.put("roomCategoryName",rc.getName());
                     jsonObject.put("roomNum",o.getNumber());
                     Long hotelId=rc.getHotelId();
                     Hotel h = hotelRepository.findById(hotelId).get();
                     jsonObject.put("hotelName",h.getName());
                     jsonObject.put("hotelPictureUrl",h.getPicture());
+                    jsonObject.put("hotelLocation",h.getLocation());
                     jsonObject.put("status",o.getStatus());
-                    orderInformation.add(jsonObject);
+
+                    List<Reservation> reservations = reservationRepository.findByOrderId(o.getId());
+
+                    List<String> roomNames = new ArrayList<>();
+                    for(Reservation reservation: reservations){
+                        Long roomId = reservation.getRoomId();
+                        String roomName = roomRepository.getById(roomId).getName();
+                        roomNames.add(roomName);
+                    }
+
+                    jsonObject.put("roomNames",roomNames);
+                    jsonObject.put("startTime",reservations.get(0).getStartTime());
+                    jsonObject.put("endTime",reservations.get(0).getEndTime());
+
+                    orderInformation.add(jsonObject)
                 }
             return ResponseUtils.success("订单信息获取成功",  orderInformation);
         }
@@ -72,17 +94,41 @@ public class OrderServiceImpl implements OrderService {
 
         if(o.isPresent()){
             Order order=o.get();
-            jsonObject.put("createTime",order.getCreateTime());
-            jsonObject.put("completeTime",order.getCompleteTime());
+
+            //获取订单的状态、创建时间、完成时间、预订房间数量
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            jsonObject.put("createTime",simpleDateFormat.format(order.getCreateTime()));
+            if(order.getCompleteTime() != null)
+                jsonObject.put("completeTime",simpleDateFormat.format(order.getCompleteTime()));
+
+            jsonObject.put("roomNum",order.getNumber());
+            jsonObject.put("status",order.getStatus());
+
+            //获取房间类型名称
             Long roomCategoryId = order.getCategoryId();
             RoomCategory rc = roomCategoryRepository.findById(roomCategoryId).get();
-            jsonObject.put("roomName",rc.getName());
-            jsonObject.put("roomNum",order.getNumber());
+            jsonObject.put("roomCategoryName",rc.getName());
+
+            //获取酒店的名称、地址和图片
             Long hotelId = rc.getHotelId();
             Hotel h = hotelRepository.findById(hotelId).get();
             jsonObject.put("hotelName",h.getName());
             jsonObject.put("hotelPictureUrl",h.getPicture());
-            jsonObject.put("status",order.getStatus());
+            jsonObject.put("hotelLocation",h.getLocation());
+
+            List<Reservation> reservations = reservationRepository.findByOrderId(orderId);
+
+            List<String> roomNames = new ArrayList<>();
+            for(Reservation reservation: reservations){
+                Long roomId = reservation.getRoomId();
+                String roomName = roomRepository.getById(roomId).getName();
+                roomNames.add(roomName);
+            }
+
+            jsonObject.put("roomNames",roomNames);
+            jsonObject.put("startTime",reservations.get(0).getStartTime());
+            jsonObject.put("endTime",reservations.get(0).getEndTime());
+
             return ResponseUtils.success("订单信息获取成功", jsonObject);
         }
         else {
