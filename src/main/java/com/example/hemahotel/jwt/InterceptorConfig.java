@@ -9,9 +9,14 @@ public class InterceptorConfig implements WebMvcConfigurer {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(new JWTInterceptors())
-                .addPathPatterns("/api/user")//用于设置拦截器的过滤路径规则
-                .addPathPatterns("/hello")
-                .excludePathPatterns("/api/user/login/password")//用于设置不需要拦截的过滤规则
+                //用于设置拦截器的过滤路径规则
+                .addPathPatterns("/api/user")
+                .addPathPatterns("/api/user/favorite")
+                .addPathPatterns("/api/forum/add")
+                .addPathPatterns("/api/guest")
+                .addPathPatterns("/api/order")
+                //用于设置不需要拦截的过滤规则
+                .excludePathPatterns("/api/user/login/password")
                 .excludePathPatterns("/api/user/register");
     }
 }

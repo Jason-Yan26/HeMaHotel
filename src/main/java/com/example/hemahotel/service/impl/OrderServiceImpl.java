@@ -54,6 +54,7 @@ public class OrderServiceImpl implements OrderService {
                     Long roomCategoryId = o.getCategoryId();
                     RoomCategory rc = roomCategoryRepository.findById(roomCategoryId).get();
                     jsonObject.put("roomCategoryName",rc.getName());
+                    jsonObject.put("roomCategoryPrice",rc.getPrice());
                     jsonObject.put("roomNum",o.getNumber());
                     Long hotelId=rc.getHotelId();
                     Hotel h = hotelRepository.findById(hotelId).get();
@@ -75,7 +76,7 @@ public class OrderServiceImpl implements OrderService {
                     jsonObject.put("startTime",reservations.get(0).getStartTime());
                     jsonObject.put("endTime",reservations.get(0).getEndTime());
 
-                    orderInformation.add(jsonObject)
+                    orderInformation.add(jsonObject);
                 }
             return ResponseUtils.success("订单信息获取成功",  orderInformation);
         }
@@ -108,6 +109,7 @@ public class OrderServiceImpl implements OrderService {
             Long roomCategoryId = order.getCategoryId();
             RoomCategory rc = roomCategoryRepository.findById(roomCategoryId).get();
             jsonObject.put("roomCategoryName",rc.getName());
+            jsonObject.put("roomCategoryPrice",rc.getPrice());
 
             //获取酒店的名称、地址和图片
             Long hotelId = rc.getHotelId();
