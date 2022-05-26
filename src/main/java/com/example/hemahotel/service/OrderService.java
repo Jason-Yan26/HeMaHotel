@@ -10,6 +10,8 @@ public interface OrderService {
 
     public ResponseUtils getById(Long userId,Long orderId);
 
+    public ResponseUtils getHotelBookingInformation(Long adminId,Long hotelId);
+
     public ResponseUtils deleteInformationById(Long userId, Long orderId);
 
     public ResponseUtils createOrder(Long userId, Long roomCategoryId, Integer reservationNum, Date startTime,Date endTime);

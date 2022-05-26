@@ -19,6 +19,9 @@ import java.util.Optional;
 public class OrderServiceImpl implements OrderService {
 
     @Autowired
+    UserRepository userRepository;
+
+    @Autowired
     OrderRepository orderRepository;
 
     @Autowired
@@ -136,6 +139,75 @@ public class OrderServiceImpl implements OrderService {
         else {
             jsonObject.put("userId", userId);
             return ResponseUtils.response(400,"订单信息为空", jsonObject);
+        }
+    }
+
+    @Override
+    public ResponseUtils getHotelBookingInformation(Long adminId, Long hotelId) {
+
+        User user = userRepository.getById(adminId);
+        JSONObject jsonObject = new JSONObject();
+
+        if(!user.getIdentity().equals(2)){ // 前台人员：2
+            jsonObject.put("adminId", adminId);
+            return ResponseUtils.response(400,"不存在查看权限", jsonObject);
+        }
+        else {
+            Optional<Hotel> h = hotelRepository.findById(hotelId);
+            if (!h.isPresent()) {
+                jsonObject.put("hotelId", hotelId);
+                return ResponseUtils.response(401, "该酒店不存在", jsonObject);
+            } else {
+
+                List<RoomCategory> rcs = roomCategoryRepository.findByHotelId(hotelId);
+                List<Long> rcIds = new ArrayList<>();
+                for(RoomCategory rc:rcs){
+                    rcIds.add(rc.getId());
+                }
+                List<Order> orders = orderRepository.findByCategoryIdIn(rcIds);//所有订单
+
+                int bookNum = 0;
+                double money = 0;
+                List<JSONObject> bookInformation = new ArrayList<>();
+                for (Order order : orders) {
+                    JSONObject info = new JSONObject();
+                    info.put("orderId", order.getId());
+                    info.put("bookUserId", order.getUserId());
+                    Long categoryId = order.getCategoryId();
+                    info.put("roomCategoryId", categoryId);
+                    RoomCategory rc = roomCategoryRepository.getById(categoryId);
+                    info.put("roomCategory", rc.getName());
+                    info.put("roomNum", order.getNumber());
+                    bookNum += order.getNumber();
+                    money += order.getPaymentMoney();
+                    List<Reservation> reservations = reservationRepository.findByOrderId(order.getId());
+
+                    List<String> roomNames = new ArrayList<>();
+                    for (Reservation reservation : reservations) {
+                        Long roomId = reservation.getRoomId();
+                        String roomName = roomRepository.getById(roomId).getName();
+                        roomNames.add(roomName);
+                    }
+                    info.put("roomNames", roomNames);
+                    info.put("guestId1", reservations.get(0).getGuestId1());
+                    info.put("guestId2", reservations.get(0).getGuestId2());
+                    info.put("guestId3", reservations.get(0).getGuestId3());
+                    info.put("roomStartTime", reservations.get(0).getStartTime());
+                    info.put("roomEndTime", reservations.get(0).getEndTime());
+                    info.put("orderCreateTime", order.getCreateTime());
+                    info.put("orderCompleteTime", order.getCompleteTime());
+                    info.put("orderStatus", order.getStatus());
+                    info.put("orderMoney", order.getPaymentMoney());
+                    info.put("payType", order.getPaymentType());
+                    bookInformation.add(info);
+                }
+
+                jsonObject.put("bookNum", bookNum);
+                jsonObject.put("freeNum", roomRepository.countByRoomCategoryIdIn(rcIds) - bookNum);
+                jsonObject.put("money", money);
+                jsonObject.put("orders", bookInformation);
+                return ResponseUtils.response(200,"酒店的房间预定情况查看成功", jsonObject);
+            }
         }
     }
 
