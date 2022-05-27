@@ -20,6 +20,8 @@ public interface UserService {
     /** 用户主页 */
     public ResponseUtils information(Long userId);
 
+    public ResponseUtils getUserInformation(Long adminId, Long userId);
+
     /** 用户密码修改 */
     public ResponseUtils passwordModify(Long userId,String oldPassword,String newPassword);
 

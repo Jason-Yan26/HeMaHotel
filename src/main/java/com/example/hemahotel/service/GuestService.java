@@ -7,6 +7,8 @@ public interface GuestService {
     /**查询住客*/
     public ResponseUtils getGuest(Long uesrId);
 
+    public ResponseUtils getGuestInformation(Long adminId, Long guestId);
+
     /**增加住客*/
     public ResponseUtils addGuest(Long id,String guestName,String guestPhone,String guestIdNumber);
 
