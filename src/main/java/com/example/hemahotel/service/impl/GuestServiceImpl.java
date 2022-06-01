@@ -2,7 +2,9 @@ package com.example.hemahotel.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
 import com.example.hemahotel.dao.GuestRepository;
+import com.example.hemahotel.dao.UserRepository;
 import com.example.hemahotel.entity.Guest;
+import com.example.hemahotel.entity.User;
 import com.example.hemahotel.service.GuestService;
 import com.example.hemahotel.utils.ResponseUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +20,9 @@ public class GuestServiceImpl implements GuestService {
     @Autowired
     private GuestRepository guestRepository;
 
+    @Autowired
+    private UserRepository userRepository;
+
     private JSONObject jsonObject;
 
     /**查询住客*/
@@ -26,6 +31,28 @@ public class GuestServiceImpl implements GuestService {
         List<Guest> guests = guestRepository.findByUserId(userId);
         jsonObject.put("guests",guests);
         return ResponseUtils.response(200,"住客查询成功", jsonObject);
+    }
+
+    public ResponseUtils getGuestInformation(Long adminId, Long guestId){
+        User user = userRepository.getById(adminId);
+        JSONObject jsonObject = new JSONObject();
+
+        if(!user.getIdentity().equals(2)){ // 前台人员：2
+            jsonObject.put("adminId", adminId);
+            return ResponseUtils.response(400,"不存在查看权限", jsonObject);
+        }
+        else {
+            Optional<Guest> g = guestRepository.findById(guestId);
+            if(!g.isPresent()){
+                jsonObject.put("guestId", guestId);
+                return ResponseUtils.response(401,"不存在该住客", jsonObject);
+            }
+            else {
+                Guest guest=g.get();
+                jsonObject.put("guest", guest);
+                return ResponseUtils.response(200, "住客查询成功", jsonObject);
+            }
+        }
     }
 
     /**增加住客*/

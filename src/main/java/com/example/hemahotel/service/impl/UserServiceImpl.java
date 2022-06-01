@@ -142,6 +142,34 @@ public class UserServiceImpl  implements UserService {
         }
     }
 
+    @Override
+    public ResponseUtils getUserInformation(Long adminId, Long userId) {
+        User user1 = userRepository.getById(adminId);
+        JSONObject jsonObject = new JSONObject();
+
+        if(!user1.getIdentity().equals(2)){ // 前台人员：2
+            jsonObject.put("adminId", adminId);
+            return ResponseUtils.response(400,"不存在查看权限", jsonObject);
+        }
+        else {
+            Optional<User> u = userRepository.findById(userId);
+            //用户存在，返回用户的个人主页信息
+            if(u.isPresent()) {
+                User user = u.get();
+                //List<Guest> Guests = guestRepository.findAllByUserIdOrderByUpdateTimeDesc(user.getId());
+                jsonObject.put("user",user);
+                //jsonObject.put("guests", Guests);
+
+                return ResponseUtils.success("用户信息获取成功",jsonObject);
+            }
+            //用户不存在，返回错误提示信息
+            else {
+                jsonObject.put("id",userId);
+                return ResponseUtils.response(401, "用户不存在", jsonObject);
+            }
+        }
+    }
+
     /** 修改用户密码 */
     public ResponseUtils passwordModify(Long id,String oldPassword,String newPassword){
 
