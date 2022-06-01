@@ -312,4 +312,18 @@ public class UserServiceImpl  implements UserService {
 
     }
 
+    /** 获取用户头像*/
+    public ResponseUtils getAvatar(Long userId){
+        JSONObject jsonObject = new JSONObject();
+        Optional<User>  u = userRepository.findById(userId);
+        if(u.isPresent()){
+            String avatar = u.get().getAvatar();
+            jsonObject.put("avatar",avatar);
+            return ResponseUtils.response(200, "用户头像获取成功", jsonObject);
+        }
+        else{
+            return ResponseUtils.response(401, "用户不存在", jsonObject);
+        }
+    }
+
 }

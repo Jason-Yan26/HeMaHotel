@@ -51,6 +51,8 @@ public class OrderServiceImpl implements OrderService {
                     if(o.getCompleteTime() != null)
                         jsonObject.put("completeTime",simpleDateFormat.format(o.getCompleteTime()));
 
+                    jsonObject.put("orderId",o.getId());
+
                     Long roomCategoryId = o.getCategoryId();
                     RoomCategory rc = roomCategoryRepository.findById(roomCategoryId).get();
                     jsonObject.put("roomCategoryName",rc.getName());

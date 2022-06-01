@@ -35,4 +35,7 @@ public interface UserService {
 
     /** 获取用户评论总数 */
     public ResponseUtils getCommentNum(Long userId);
+
+    /** 获取用户头像*/
+    public ResponseUtils getAvatar(Long userId);
 }

@@ -35,7 +35,6 @@ public class ForumController {
         return  forumService.add(id,title,content);
     }
 
-
     //查询所有帖子信息
     @PostMapping("/getAll")
     public ResponseUtils getForumNum(@RequestBody JSONObject jsonObject) {
@@ -59,7 +58,7 @@ public class ForumController {
     public ResponseUtils findById(@RequestBody JSONObject jsonObject){
 
         Long forumId = jsonObject.getLong("forumId");
-
         return forumService.findById(forumId);
     }
+
 }

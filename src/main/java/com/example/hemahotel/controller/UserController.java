@@ -161,4 +161,15 @@ public class UserController {
 
         return userService.getCommentNum(id);
     }
+
+    /**获取用户头像接口*/
+    @PostMapping("/avatar/get")
+    public ResponseUtils getAvatar(HttpServletRequest request) {
+
+        //获取用户相关信息
+        String token = request.getHeader("token");
+        Long id = Long.valueOf(JWTUtils.getUserId(token));
+
+        return userService.getAvatar(id);
+    }
 }
