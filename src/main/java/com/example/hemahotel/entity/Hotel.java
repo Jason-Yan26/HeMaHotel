@@ -44,4 +44,19 @@ public class Hotel {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Timestamp createTime;//创建时间
 
+
+    @Column
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private Timestamp updateTime;//更新时间
+
+    public Hotel(String name, String location, String picture, Integer star, String phone, String description, Timestamp createTime, Timestamp updateTime) {
+        this.name = name;
+        this.location = location;
+        this.picture = picture;
+        this.star = star;
+        this.phone = phone;
+        this.description = description;
+        this.createTime = createTime;
+        this.updateTime = updateTime;
+    }
 }

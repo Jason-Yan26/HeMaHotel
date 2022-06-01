@@ -67,6 +67,7 @@ public class UserServiceImpl  implements UserService {
             String password_security = SecurityUtils.encodePassword(password);
 
             User user = new User(telephone, password_security, telephone, 0, createTime, updateTime);
+            user.setIdentity(0);//identity = 0 :普通用户
 
             userRepository.save(user);
 
@@ -107,6 +108,7 @@ public class UserServiceImpl  implements UserService {
                 String Token = JWTUtils.getToken(map);
 
                 jsonObject.put("token",Token);
+                jsonObject.put("identity",user.get().getIdentity());
 
                 log.info("用户登录成功,用户id[{}]",user.get().getId());
                 return ResponseUtils.response(200,"用户登录成功", jsonObject);

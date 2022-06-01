@@ -22,4 +22,9 @@ public interface HotelService {
     /** 获取推荐酒店信息*/
     public ResponseUtils getHotelRecommendation(Long num);
 
+    /** 增加酒店*/
+    public ResponseUtils addHotel(Long userId,String hotelName,String hotelLocation,String hotelPicture,Integer hotelStar,String hotelPhone,String hotelDescription);
+
+    /** 删除酒店*/
+    public ResponseUtils deleteHotel(Long userId,Long hotelId);
 }

@@ -7,10 +7,8 @@ import com.example.hemahotel.dao.HotelRepository;
 import com.example.hemahotel.dao.RoomCategoryRepository;
 import com.example.hemahotel.dao.UserRepository;
 import com.example.hemahotel.elasticSearch.SearchHotel;
-import com.example.hemahotel.entity.Comment;
-import com.example.hemahotel.entity.Hotel;
-import com.example.hemahotel.entity.RoomCategory;
-import com.example.hemahotel.entity.User;
+import com.example.hemahotel.elasticSearch.SearchHotelRepository;
+import com.example.hemahotel.entity.*;
 import com.example.hemahotel.service.HotelService;
 import com.example.hemahotel.utils.ResponseUtils;
 import org.elasticsearch.action.search.SearchResponse;
@@ -34,6 +32,7 @@ import org.springframework.data.elasticsearch.core.SearchHits;
 import org.springframework.data.elasticsearch.core.mapping.IndexCoordinates;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
 import org.springframework.data.elasticsearch.core.query.Query;
+import org.springframework.data.elasticsearch.core.suggest.Completion;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
@@ -65,6 +64,8 @@ public class HotelServiceImpl implements HotelService {
     private RoomCategoryRepository roomCategoryRepository;
 
 
+    @Autowired
+    private SearchHotelRepository searchHotelRepository;
 
     public ResponseUtils createComment(Long userId, String comment, Long hotelId, int star) {
 
@@ -373,4 +374,54 @@ public class HotelServiceImpl implements HotelService {
             return ResponseUtils.response(404, "酒店推荐失败", jsonObject);
 
     }
+
+
+    /** 增加酒店*/
+    public ResponseUtils addHotel(Long userId,String hotelName,String hotelLocation,String hotelPicture,Integer hotelStar,String hotelPhone,String hotelDescription){
+
+        JSONObject jsonObject = new JSONObject();
+
+        User user = userRepository.findById(userId).get();
+        //确保该用户身份为系统管理员，才有权限可以操作
+        if(user.getIdentity() == 1){
+
+            Timestamp createTime = new Timestamp(System.currentTimeMillis());//创建时间
+            Timestamp updateTime = new Timestamp(System.currentTimeMillis());//更新时间
+
+            Hotel hotel = new Hotel(hotelName,hotelLocation,hotelPicture,hotelStar,hotelPhone,hotelDescription,createTime,updateTime);
+            hotel = hotelRepository.save(hotel);//酒店新增到MySQL数据库
+
+
+            List<String> suggestList = new ArrayList<>();
+            suggestList.add(hotel.getName()); //可以把多个内容作为suggest的数据源
+            Completion suggest = new Completion(suggestList.toArray(new String[suggestList.size()]));
+
+            SearchHotel searchHotel = new SearchHotel(hotel.getId(),hotelName,hotelLocation,hotelStar,hotelDescription,suggest);
+
+            searchHotelRepository.save(searchHotel);//酒店新增到ES服务器
+
+
+            return ResponseUtils.response(200, "酒店新增成功", jsonObject);
+        }
+        else{
+            return ResponseUtils.response(401, "权限不足，无法新增酒店！", jsonObject);
+        }
+    }
+
+    /** 删除酒店*/
+    public ResponseUtils deleteHotel(Long userId,Long hotelId){
+        JSONObject jsonObject = new JSONObject();
+
+        User user = userRepository.findById(userId).get();
+        //确保该用户身份为系统管理员，才有权限可以操作
+        if(user.getIdentity() == 1) {
+            hotelRepository.deleteById(hotelId);
+            searchHotelRepository.deleteById(hotelId);
+            return ResponseUtils.response(200, "酒店删除成功", jsonObject);
+        }
+        else{
+            return ResponseUtils.response(401, "权限不足，无法删除酒店！", jsonObject);
+        }
+    }
+
 }

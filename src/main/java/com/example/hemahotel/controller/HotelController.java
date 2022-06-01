@@ -1,12 +1,15 @@
 package com.example.hemahotel.controller;
 
 import com.alibaba.fastjson.JSONObject;
+import com.example.hemahotel.jwt.JWTUtils;
 import com.example.hemahotel.service.HotelService;
 import com.example.hemahotel.service.RoomCategoryService;
 import com.example.hemahotel.service.RoomService;
 import com.example.hemahotel.utils.ResponseUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpServletRequest;
 
 @RestController
 @RequestMapping("/api/hotel")
@@ -106,6 +109,38 @@ public class HotelController {
         Long num = jsonObject.getLong("num");
 
         return hotelService.getHotelRecommendation(num);
+    }
+
+    /** 酒店增加接口*/
+    @PostMapping("/add")
+    public ResponseUtils addHotel(@RequestBody JSONObject jsonObject,HttpServletRequest request){
+
+        //从token中获取id
+        String token = request.getHeader("token");
+        Long userId = Long.valueOf(JWTUtils.getUserId(token));
+
+        //待增加酒店的详细信息
+        String hotelName = jsonObject.getString("hotelName");
+        String hotelLocation = jsonObject.getString("hotelLocation");
+        String hotelPicture = jsonObject.getString("hotelPicture");
+        Integer hotelStar = jsonObject.getInteger("hotelStar");
+        String hotelPhone = jsonObject.getString("hotelPhone");
+        String hotelDescription = jsonObject.getString("hotelDescription");
+
+        return hotelService.addHotel(userId,hotelName,hotelLocation,hotelPicture,hotelStar,hotelPhone,hotelDescription);
+    }
+
+    /** 酒店删除接口*/
+    @PostMapping("/delete")
+    public ResponseUtils deleteHotel(@RequestBody JSONObject jsonObject,HttpServletRequest request){
+
+        //从token中获取id
+        String token = request.getHeader("token");
+        Long userId = Long.valueOf(JWTUtils.getUserId(token));
+
+        Long hotelId = jsonObject.getLong("hotelId");
+
+        return hotelService.deleteHotel(userId,hotelId);
     }
 
 }
