@@ -76,5 +76,14 @@ public class ReceptionistController {
 
         return orderService.checkIn(adminId, reservationTelephone, guestID1, guestID2, guestID3);
     }
+    @PostMapping("/checkOut")
+    public ResponseUtils checkOut(@RequestBody JSONObject jsonObject, HttpServletRequest request) {
 
+        String token = request.getHeader("token");
+        Long adminId = Long.valueOf(JWTUtils.getUserId(token)); // admin status
+
+        Long roomID = jsonObject.getLong("roomID"); //房号
+
+        return orderService.checkOut(adminId, roomID);
+    }
 }

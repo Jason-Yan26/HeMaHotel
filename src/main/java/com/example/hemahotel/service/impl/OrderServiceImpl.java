@@ -224,7 +224,7 @@ public class OrderServiceImpl implements OrderService {
 
         if(!admin.getIdentity().equals(2)){ // 前台人员：2
             jsonObject.put("adminId", adminId);
-            return ResponseUtils.response(400,"不存在查看权限", jsonObject);
+            return ResponseUtils.response(400,"不存在办理入住权限", jsonObject);
         }
         else {
             Long hotelId = admin.getHotelId();
@@ -349,6 +349,44 @@ public class OrderServiceImpl implements OrderService {
             } else {
                 jsonObject.put("telephone", reservationTelephone);
                 return ResponseUtils.response(401, "预定者电话号码错误", jsonObject);
+            }
+        }
+    }
+
+    @Override
+    public ResponseUtils checkOut(Long adminId, Long roomID) {
+        User admin = userRepository.getById(adminId);
+        JSONObject jsonObject = new JSONObject();
+
+        if(!admin.getIdentity().equals(2)){ // 前台人员：2
+            jsonObject.put("adminId", adminId);
+            return ResponseUtils.response(400,"不存在办理退房权限", jsonObject);
+        }
+        else {
+            Long adminHotelId = admin.getHotelId();
+            Optional<Room> r = roomRepository.findById(roomID);
+            if(r.isPresent()){
+                Room room = r.get();
+                Long CategoryId = room.getRoomCategoryId();
+                Long hotelId = roomCategoryRepository.getById(CategoryId).getHotelId();
+                if(hotelId.equals(adminHotelId)){
+                    List<Reservation> reservations = reservationRepository.findByRoomId(roomID);
+                    for(Reservation reservation:reservations){
+                        Long orderId = reservation.getOrderId();
+                        Order order = orderRepository.getById(orderId);
+                        if(order.getStatus().equals(4)){
+                            order.setStatus(5);
+                            orderRepository.save(order);
+                            return ResponseUtils.response(200,"退房成功", jsonObject);
+                        }
+                    }
+                    return ResponseUtils.response(403,"退房失败", jsonObject);
+                }else{
+                    return ResponseUtils.response(402,"该管理员不存在管理该酒店房间的权限", jsonObject);
+                }
+            }else {
+                jsonObject.put("roomId",roomID);
+                return ResponseUtils.response(401,"该房间不存在", jsonObject);
             }
         }
     }
