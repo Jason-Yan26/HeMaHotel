@@ -62,4 +62,19 @@ public class ReceptionistController {
         return guestService.getGuestInformation(adminId, guestId);
     }
 
+    @PostMapping("/checkIn")
+    public ResponseUtils checkIn(@RequestBody JSONObject jsonObject, HttpServletRequest request) {
+
+        String token = request.getHeader("token");
+        Long adminId = Long.valueOf(JWTUtils.getUserId(token)); // admin status
+
+        String guestID1 = jsonObject.getString("guestID1"); //身份证号
+        String guestID2 = jsonObject.getString("guestID2");
+        String guestID3 = jsonObject.getString("guestID3");
+        String reservationTelephone = jsonObject.getString("telephone");//预定人电话号码
+
+
+        return orderService.checkIn(adminId, reservationTelephone, guestID1, guestID2, guestID3);
+    }
+
 }

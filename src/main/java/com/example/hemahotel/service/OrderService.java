@@ -12,6 +12,8 @@ public interface OrderService {
 
     public ResponseUtils getHotelBookingInformation(Long adminId,Long hotelId);
 
+    public ResponseUtils checkIn(Long adminId,String reservationPersonName, String guestID1, String guestID2, String guestID3);
+
     public ResponseUtils deleteInformationById(Long userId, Long orderId);
 
     public ResponseUtils createOrder(Long userId, Long roomCategoryId, Integer reservationNum, Date startTime,Date endTime);

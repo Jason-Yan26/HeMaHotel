@@ -14,4 +14,6 @@ public interface GuestRepository extends JpaRepository<Guest,Long> {
     public Optional<Guest> findById(Long id);
 
     List<Guest> findByUserId(Long userId);
+
+    List<Guest> findByIdIn(List<Long> Ids);
 }

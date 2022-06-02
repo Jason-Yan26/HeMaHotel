@@ -35,6 +35,9 @@ public class OrderServiceImpl implements OrderService {
     private RoomRepository roomRepository;
 
     @Autowired
+    private GuestRepository guestRepository;
+
+    @Autowired
     private RoomCategoryRepository roomCategoryRepository;
 
     @Override
@@ -210,6 +213,142 @@ public class OrderServiceImpl implements OrderService {
                 jsonObject.put("money", money);
                 jsonObject.put("orders", bookInformation);
                 return ResponseUtils.response(200,"酒店的房间预定情况查看成功", jsonObject);
+            }
+        }
+    }
+
+    @Override
+    public ResponseUtils checkIn(Long adminId, String reservationTelephone, String guestID1, String guestID2, String guestID3) {
+        User admin = userRepository.getById(adminId);
+        JSONObject jsonObject = new JSONObject();
+
+        if(!admin.getIdentity().equals(2)){ // 前台人员：2
+            jsonObject.put("adminId", adminId);
+            return ResponseUtils.response(400,"不存在查看权限", jsonObject);
+        }
+        else {
+            Long hotelId = admin.getHotelId();
+            Optional<User> u = userRepository.findByPhone(reservationTelephone);
+            if (u.isPresent()) {
+                User user = u.get();//找到预定者信息
+                Long userId = user.getId();
+                List<RoomCategory> roomCategoryList = roomCategoryRepository.findByHotelId(hotelId);//该酒店的所有房型
+                List<Long> CategoryIds = new ArrayList<>();
+                for (RoomCategory rc : roomCategoryList)
+                    CategoryIds.add(rc.getId());
+                List<Order> orders = orderRepository.findByUserIdAndCategoryIdIn(userId, CategoryIds);
+                for (Order order : orders) {
+                    if (order.getStatus().equals(2) || order.getStatus().equals(1)) { // 已支付||未支付的订单
+                        Long orderId = order.getId();
+                        Reservation reservation = reservationRepository.findByOrderId(orderId).get(0);
+                        Long guestId1 = reservation.getGuestId1();
+                        Long guestId2 = reservation.getGuestId2();
+                        Long guestId3 = reservation.getGuestId3();
+                        String guestIdNum1 = "";String guestIdNum2 = ""; String guestIdNum3 = "";
+                        boolean flag1 = false, flag2 = false, flag3 = false;//标记传入的入住者信息
+                        boolean mark1 = false, mark2 = false, mark3 = false;//标记订单的入住者信息
+                        if (guestId1 != null) {
+                            Guest g1 = guestRepository.getById(guestId1);
+                            guestIdNum1 = g1.getIdNumber();
+                        }else {
+                            mark1 = true;
+                        }
+                        if (guestId2 != null) {
+                            Guest g2 = guestRepository.getById(guestId2);
+                            guestIdNum2 = g2.getIdNumber();
+                        }else {
+                            mark2 = true;
+                        }
+                        if (guestId3 != null) {
+                            Guest g3 = guestRepository.getById(guestId3);
+                            guestIdNum3 = g3.getIdNumber();
+                        }else {
+                            mark3 = true;
+                        }
+                        if (guestID1 != null) {
+                            if (guestID1.equals(guestIdNum1)&&!mark1){
+                                mark1=true;
+                                flag1 = true;
+                            } else if (guestID1.equals(guestIdNum2)&&!mark2) {
+                                mark2=true;
+                                flag1 = true;
+                            } else if (guestID1.equals(guestIdNum3)&&!mark3) {
+                                mark3 = true;
+                                flag1 = true;
+                            }
+                        } else {
+                            flag1 = true;
+                        }
+                        if (guestID2 != null) {
+                            if (guestID2.equals(guestIdNum1)&&!mark1){
+                                mark1 = true;
+                                flag2 = true;
+                            } else if (guestID2.equals(guestIdNum2)&&!mark2) {
+                                mark2 = true;
+                                flag2 = true;
+                            } else if (guestID2.equals(guestIdNum3)&&!mark3) {
+                                mark3 = true;
+                                flag2 = true;
+                            }
+                        } else {
+                            flag2 = true;
+                        }
+                        if (guestID3 != null) {
+                            if (guestID3.equals(guestIdNum1)&&!mark1){
+                                mark1=true;
+                                flag3 = true;
+                            } else if (guestID3.equals(guestIdNum2)&&!mark2) {
+                                mark2=true;
+                                flag3 = true;
+                            } else if (guestID3.equals(guestIdNum3)&&!mark3) {
+                                mark3 = true;
+                                flag3 = true;
+                            }
+                        } else {
+                            flag3 = true;
+                        }
+                        if (flag1 && flag2 && flag3) {
+                            if(!(mark1 && mark2 && mark3)){ // 未收集到所有入住者信息
+                                List<JSONObject> guests=new ArrayList<>();
+                                if(!mark1) {
+                                    JSONObject js = new JSONObject();
+                                    Guest guest=guestRepository.getById(guestId1);
+                                    js.put("name",guest.getName());
+                                    js.put("phone",guest.getPhone());
+                                    guests.add(js);
+                                }
+                                if(!mark2) {
+                                    JSONObject js = new JSONObject();
+                                    Guest guest=guestRepository.getById(guestId2);
+                                    js.put("name",guest.getName());
+                                    js.put("phone",guest.getPhone());
+                                    guests.add(js);
+                                }
+                                if(!mark3){
+                                    JSONObject js = new JSONObject();
+                                    Guest guest=guestRepository.getById(guestId3);
+                                    js.put("name",guest.getName());
+                                    js.put("phone",guest.getPhone());
+                                    guests.add(js);
+                                }
+                                jsonObject.put("guests",guests);
+                                return ResponseUtils.response(404, "还需提供其他入住者信息", jsonObject);
+                            } else {
+                                if (order.getStatus().equals(1)) { // 未支付
+                                    return ResponseUtils.response(403, "该订单未支付", jsonObject);
+                                } else {
+                                    order.setStatus(4); // 修改状态为已入住：4
+                                    orderRepository.save(order);
+                                    return ResponseUtils.response(200, "入住成功", jsonObject);
+                                }
+                            }
+                        }
+                    }
+                }
+                return ResponseUtils.response(402, "找不到预定信息", jsonObject);
+            } else {
+                jsonObject.put("telephone", reservationTelephone);
+                return ResponseUtils.response(401, "预定者电话号码错误", jsonObject);
             }
         }
     }

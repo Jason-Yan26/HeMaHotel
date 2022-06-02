@@ -15,7 +15,6 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
     /**根据客房id查找reservation*/
     List<Reservation> findByRoomId(Long roomId);
 
-
     List<Reservation> findByOrderId(Long orderId);
 
 }
