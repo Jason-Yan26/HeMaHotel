@@ -356,4 +356,62 @@ public class UserServiceImpl  implements UserService {
         }
     }
 
+    /** 获取注册用户数量*/
+    public ResponseUtils getAmount(Long userId,Integer type){
+        JSONObject jsonObject = new JSONObject();
+        User user = userRepository.findById(userId).get();
+        //确保该用户身份为系统管理员，才有权限可以操作
+        if(user.getIdentity() == 1){
+
+            //查询类型：0累计，1今日，2昨日
+            long amount = 0;
+            if(type == 0){
+                amount = userRepository.count();
+            }
+            else if(amount == 1){
+                //今日0点时间
+                Calendar calendar = Calendar.getInstance();
+                calendar.set(Calendar.SECOND, 0);
+                calendar.set(Calendar.MINUTE, 0);
+                calendar.set(Calendar.HOUR_OF_DAY, 0);
+                calendar.set(Calendar.MILLISECOND, 0);
+                Timestamp startTime = new Timestamp(calendar.getTimeInMillis());
+
+                //今日23.59时间
+                calendar.set(Calendar.HOUR_OF_DAY, 23);
+                calendar.set(Calendar.MINUTE, 59);
+                calendar.set(Calendar.SECOND, 59);
+                calendar.set(Calendar.MILLISECOND, 999);
+                Timestamp endTime = new Timestamp(calendar.getTimeInMillis());
+
+                amount = userRepository.countAllByCreateTimeBetween(startTime,endTime);
+            }
+            else if(amount == 2){
+                //昨日00：00时间
+                Calendar calendar = Calendar.getInstance();
+                calendar.add(Calendar.DAY_OF_MONTH,-1);
+                calendar.set(Calendar.SECOND, 0);
+                calendar.set(Calendar.MINUTE, 0);
+                calendar.set(Calendar.HOUR_OF_DAY, 0);
+                calendar.set(Calendar.MILLISECOND, 0);
+                Timestamp startTime = new Timestamp(calendar.getTimeInMillis());
+
+                //昨日23:59时间
+                calendar.set(Calendar.HOUR_OF_DAY, 23);
+                calendar.set(Calendar.MINUTE, 59);
+                calendar.set(Calendar.SECOND, 59);
+                calendar.set(Calendar.MILLISECOND, 999);
+                Timestamp endTime = new Timestamp(calendar.getTimeInMillis());
+
+                amount = userRepository.countAllByCreateTimeBetween(startTime,endTime);
+            }
+
+            jsonObject.put("amount",amount);
+            return ResponseUtils.response(200, "注册用户数量获取成功", jsonObject);
+        }
+        else{
+            return ResponseUtils.response(401, "权限不足，无法获取订单信息", jsonObject);
+        }
+    }
+
 }

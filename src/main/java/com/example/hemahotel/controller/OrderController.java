@@ -80,4 +80,65 @@ public class OrderController {
         return orderService.toPayOrder(id,orderId,payType);
     }
 
+    /** 获取累计订单数量接口 */
+    @PostMapping("/number/total")
+    public ResponseUtils getTotalNumber(HttpServletRequest request) {
+
+        String token = request.getHeader("token");
+        Long userId = Long.valueOf(JWTUtils.getUserId(token));
+
+        return orderService.getTotalNumber(userId);
+    }
+
+    /** 获取当日订单数量接口 */
+    @PostMapping("/number/today")
+    public ResponseUtils getTodayNumber(HttpServletRequest request) {
+
+        String token = request.getHeader("token");
+        Long userId = Long.valueOf(JWTUtils.getUserId(token));
+
+        return orderService.getTodayNumber(userId);
+    }
+
+    /** 获取昨日订单数量接口 */
+    @PostMapping("/number/yesterday")
+    public ResponseUtils getYesterdayNumber(HttpServletRequest request) {
+
+        String token = request.getHeader("token");
+        Long userId = Long.valueOf(JWTUtils.getUserId(token));
+
+        return orderService.getYesterdayNumber(userId);
+    }
+
+    /** 查询销售额 */
+    @PostMapping("/salesAmount")
+    public ResponseUtils getSalesAmount(@RequestBody JSONObject jsonObject,HttpServletRequest request) {
+
+        String token = request.getHeader("token");
+        Long userId = Long.valueOf(JWTUtils.getUserId(token));
+
+        Integer startYear = jsonObject.getInteger("startYear");
+        Integer startMonth = jsonObject.getInteger("startMonth");
+        Integer startDay = jsonObject.getInteger("startDay");
+
+        Integer endYear = jsonObject.getInteger("endYear");
+        Integer endMonth = jsonObject.getInteger("endMonth");
+        Integer endDay = jsonObject.getInteger("endDay");
+
+        return orderService.getSalesAmount(userId,startYear,startMonth,startDay,endYear,endMonth,endDay);
+    }
+
+    /** 查询交易用户数量*/
+    @PostMapping("/usersAmount")
+    public ResponseUtils getUserssAmount(@RequestBody JSONObject jsonObject,HttpServletRequest request) {
+
+        String token = request.getHeader("token");
+        Long userId = Long.valueOf(JWTUtils.getUserId(token));
+
+        //查询类型：type = 0:累计;type = 1:今日
+        Integer type = jsonObject.getInteger("type");
+
+        return orderService.getUsersAmount(userId,type);
+    }
+
 }

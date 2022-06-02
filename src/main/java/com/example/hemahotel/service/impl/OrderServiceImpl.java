@@ -12,6 +12,7 @@ import java.sql.Date;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Optional;
 
@@ -329,5 +330,175 @@ public class OrderServiceImpl implements OrderService {
             }
         }
     }
+
+
+    /** 获取累计订单数量*/
+    public ResponseUtils getTotalNumber(Long userId){
+        JSONObject jsonObject = new JSONObject();
+        User user = userRepository.findById(userId).get();
+        //确保该用户身份为系统管理员，才有权限可以操作
+        if(user.getIdentity() == 1){
+            long totalNumber = orderRepository.count();
+            jsonObject.put("totalNumber",totalNumber);
+            return ResponseUtils.response(200, "累计订单数量获取成功", jsonObject);
+        }
+        else{
+            return ResponseUtils.response(401, "权限不足，无法获取订单信息", jsonObject);
+        }
+    }
+
+    /** 获取今日订单数量*/
+    public ResponseUtils getTodayNumber(Long userId){
+        JSONObject jsonObject = new JSONObject();
+        User user = userRepository.findById(userId).get();
+        //确保该用户身份为系统管理员，才有权限可以操作
+        if(user.getIdentity() == 1){
+
+            //今日0点时间
+            Calendar calendar = Calendar.getInstance();
+            calendar.set(Calendar.SECOND, 0);
+            calendar.set(Calendar.MINUTE, 0);
+            calendar.set(Calendar.HOUR_OF_DAY, 0);
+            calendar.set(Calendar.MILLISECOND, 0);
+            Timestamp startTime = new Timestamp(calendar.getTimeInMillis());
+
+            //今日23.59时间
+            calendar.set(Calendar.HOUR_OF_DAY, 23);
+            calendar.set(Calendar.MINUTE, 59);
+            calendar.set(Calendar.SECOND, 59);
+            calendar.set(Calendar.MILLISECOND, 999);
+            Timestamp endTime = new Timestamp(calendar.getTimeInMillis());
+
+            int todayNumber = orderRepository.countAllByCreateTimeBetween(startTime,endTime);
+            jsonObject.put("todayNumber",todayNumber);
+
+            return ResponseUtils.response(200, "今日订单数量获取成功", jsonObject);
+        }
+        else{
+            return ResponseUtils.response(401, "权限不足，无法获取订单信息", jsonObject);
+        }
+    }
+
+    /** 获取昨日订单数量*/
+    public ResponseUtils getYesterdayNumber(Long userId){
+        JSONObject jsonObject = new JSONObject();
+        User user = userRepository.findById(userId).get();
+        //确保该用户身份为系统管理员，才有权限可以操作
+        if(user.getIdentity() == 1){
+
+            //昨日00：00时间
+            Calendar calendar = Calendar.getInstance();
+            calendar.add(Calendar.DAY_OF_MONTH,-1);
+            calendar.set(Calendar.SECOND, 0);
+            calendar.set(Calendar.MINUTE, 0);
+            calendar.set(Calendar.HOUR_OF_DAY, 0);
+            calendar.set(Calendar.MILLISECOND, 0);
+            Timestamp startTime = new Timestamp(calendar.getTimeInMillis());
+
+            //昨日23:59时间
+            calendar.set(Calendar.HOUR_OF_DAY, 23);
+            calendar.set(Calendar.MINUTE, 59);
+            calendar.set(Calendar.SECOND, 59);
+            calendar.set(Calendar.MILLISECOND, 999);
+            Timestamp endTime = new Timestamp(calendar.getTimeInMillis());
+
+
+            int yesterdayNumber = orderRepository.countAllByCreateTimeBetween(startTime,endTime);
+            jsonObject.put("yesterdayNumber",yesterdayNumber);
+
+            return ResponseUtils.response(200, "昨日订单数量获取成功", jsonObject);
+        }
+        else{
+            return ResponseUtils.response(401, "权限不足，无法获取订单信息", jsonObject);
+        }
+    }
+
+    /** 获取销售额*/
+    public ResponseUtils getSalesAmount(Long userId,Integer startYear,Integer startMonth,Integer startDay,Integer endYear,Integer endMonth,Integer endDay){
+        JSONObject jsonObject = new JSONObject();
+        User user = userRepository.findById(userId).get();
+        //确保该用户身份为系统管理员，才有权限可以操作
+        if(user.getIdentity() == 1){
+
+            //销售额查询开始时间
+            Calendar calendar = Calendar.getInstance();
+            calendar.set(Calendar.YEAR, startYear);
+            calendar.set(Calendar.MONTH, startMonth-1);
+            calendar.set(Calendar.DAY_OF_MONTH, startDay);
+            calendar.set(Calendar.HOUR_OF_DAY, 0);
+            calendar.set(Calendar.MINUTE, 0);
+            calendar.set(Calendar.SECOND, 0);
+            calendar.set(Calendar.MILLISECOND, 0);
+            Timestamp startTime = new Timestamp(calendar.getTimeInMillis());
+
+            //销售额查询结束时间
+            calendar.set(Calendar.YEAR, endYear);
+            calendar.set(Calendar.MONTH, endMonth-1);
+            calendar.set(Calendar.DAY_OF_MONTH, endDay);
+            calendar.set(Calendar.HOUR_OF_DAY, 23);
+            calendar.set(Calendar.MINUTE, 59);
+            calendar.set(Calendar.SECOND, 59);
+            calendar.set(Calendar.MILLISECOND, 999);
+            Timestamp endTime = new Timestamp(calendar.getTimeInMillis());
+
+            System.out.println(startTime);
+            System.out.println(endTime);
+
+            List<Order> orders = orderRepository.findByCompleteTimeBetween(startTime,endTime);
+            double salesAmount = 0;
+            for(Order order:orders){
+                salesAmount += order.getPaymentMoney();
+            }
+
+            jsonObject.put("salesAmount",salesAmount);
+
+            return ResponseUtils.response(200, "销售额查询成功", jsonObject);
+        }
+        else{
+            return ResponseUtils.response(401, "权限不足，无法获取订单信息", jsonObject);
+        }
+    }
+
+    /** 获取交易用户数*/
+    public ResponseUtils getUsersAmount(Long userId,Integer type){
+        JSONObject jsonObject = new JSONObject();
+        User user = userRepository.findById(userId).get();
+        //确保该用户身份为系统管理员，才有权限可以操作
+        if(user.getIdentity() == 1){
+
+            long amount = 0;
+            //累计
+            if(type == 0){
+                amount = orderRepository.count();
+            }
+            //今天
+            else if(type == 1) {
+                //今日0点时间
+                Calendar calendar = Calendar.getInstance();
+                calendar.set(Calendar.SECOND, 0);
+                calendar.set(Calendar.MINUTE, 0);
+                calendar.set(Calendar.HOUR_OF_DAY, 0);
+                calendar.set(Calendar.MILLISECOND, 0);
+                Timestamp startTime = new Timestamp(calendar.getTimeInMillis());
+
+                //今日23.59时间
+                calendar.set(Calendar.HOUR_OF_DAY, 23);
+                calendar.set(Calendar.MINUTE, 59);
+                calendar.set(Calendar.SECOND, 59);
+                calendar.set(Calendar.MILLISECOND, 999);
+                Timestamp endTime = new Timestamp(calendar.getTimeInMillis());
+
+                amount = orderRepository.countAllByCreateTimeBetween(startTime,endTime);
+            }
+            jsonObject.put("usersAmount",amount);
+
+            return ResponseUtils.response(200, "交易用户数量查询成功", jsonObject);
+        }
+        else{
+            return ResponseUtils.response(401, "权限不足，无法获取订单信息", jsonObject);
+        }
+    }
+
+
 
 }

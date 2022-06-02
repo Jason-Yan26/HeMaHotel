@@ -40,4 +40,8 @@ public interface UserService {
 
     /** 获取用户头像*/
     public ResponseUtils getAvatar(Long userId);
+
+
+    /** 获取注册用户数量*/
+    public ResponseUtils getAmount(Long userId,Integer type);
 }

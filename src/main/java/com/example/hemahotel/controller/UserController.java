@@ -172,4 +172,18 @@ public class UserController {
 
         return userService.getAvatar(id);
     }
+
+    /**查询注册用户数量接口*/
+    @PostMapping("/amount")
+    public ResponseUtils getAmount(@RequestBody JSONObject jsonObject, HttpServletRequest request) {
+
+        //获取用户相关信息
+        String token = request.getHeader("token");
+        Long userId = Long.valueOf(JWTUtils.getUserId(token));
+
+        //查询类型：0累计，1今日，2昨日
+        Integer type = jsonObject.getInteger("type");
+
+        return userService.getAmount(userId,type);
+    }
 }
