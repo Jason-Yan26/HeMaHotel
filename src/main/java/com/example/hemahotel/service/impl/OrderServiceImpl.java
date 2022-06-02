@@ -646,7 +646,7 @@ public class OrderServiceImpl implements OrderService {
             long amount = 0;
             //累计
             if(type == 0){
-                amount = orderRepository.count();
+                amount = orderRepository.findGroupByUserId().size();
             }
             //今天
             else if(type == 1) {

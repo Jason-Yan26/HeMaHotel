@@ -2,11 +2,16 @@ package com.example.hemahotel.dao;
 
 import com.example.hemahotel.entity.Order;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
 import java.util.List;
 import java.util.Optional;
 
+@Transactional
+@Repository
 public interface OrderRepository extends JpaRepository<Order, Long> {
 
     Optional<Order> findById(Long id);
@@ -23,6 +28,8 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
      * 查询累计订单数量
      */
     long count();
+    @Query(value="select count(*) as userNum from orders group by user_id", nativeQuery = true)
+    List findGroupByUserId();
 
     /**查询某一区间的订单数量*/
     int countAllByCreateTimeBetween(Timestamp startTime,Timestamp endTime);
