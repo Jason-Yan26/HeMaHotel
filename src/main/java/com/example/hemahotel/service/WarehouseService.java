@@ -17,4 +17,6 @@ public interface WarehouseService {
     public ResponseUtils modify(Long userId,String itemName,Long itemNumber);
 
 
+    public ResponseUtils use(Long adminId,String itemName,Long itemNumber);
+
 }
