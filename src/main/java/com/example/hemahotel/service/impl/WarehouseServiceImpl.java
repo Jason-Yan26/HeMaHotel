@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Slf4j
@@ -98,6 +99,45 @@ public class WarehouseServiceImpl implements WarehouseService {
         }
         else{
             return ResponseUtils.response(401, "权限不足，无法获取酒店仓库信息", jsonObject);
+        }
+
+    }
+
+    @Override
+    public ResponseUtils use(Long adminId, String itemName, Long itemNumber) {
+        JSONObject jsonObject = new JSONObject();
+
+        Optional<User> u = userRepository.findById(adminId);
+        if(u.isPresent()){
+            User user= u.get();
+            //确保该用户身份为清洁人员，才有权限可以更换房间用品
+            if(user.getIdentity().equals(3)){
+                Long hotelId = user.getHotelId();
+
+                Optional<Warehouse> w = warehouseRepository.findByHotelIdAndItemName(hotelId,itemName);
+                if(w.isPresent()){
+                    Warehouse warehouse = w.get();
+                    if(warehouse.getItemNumber()>=itemNumber) {
+                        warehouse.setItemNumber(warehouse.getItemNumber() - itemNumber);
+                        warehouseRepository.save(warehouse);
+                        jsonObject.put("item", w);
+                        return ResponseUtils.response(200, "更换房间用品成功", jsonObject);
+                    }else{
+                        jsonObject.put("item", w);
+                        return ResponseUtils.response(403, "房间用品库存不足", jsonObject);
+                    }
+                }else{
+                    jsonObject.put("itemName",itemName);
+                    return ResponseUtils.response(402, "该房间用品不存在", jsonObject);
+                }
+            }
+            else{
+                jsonObject.put("identity",user.getIdentity());
+                return ResponseUtils.response(401, "权限不足，无法更换房间用品", jsonObject);
+            }
+        }else {
+            jsonObject.put("adminId",adminId);
+            return ResponseUtils.response(400, "该用户不存在", jsonObject);
         }
 
     }
