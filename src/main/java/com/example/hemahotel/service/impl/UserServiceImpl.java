@@ -1,10 +1,7 @@
 package com.example.hemahotel.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
-import com.example.hemahotel.dao.CommentRepository;
-import com.example.hemahotel.dao.GuestRepository;
-import com.example.hemahotel.dao.HotelRepository;
-import com.example.hemahotel.dao.UserRepository;
+import com.example.hemahotel.dao.*;
 import com.example.hemahotel.entity.*;
 import com.example.hemahotel.jwt.JWTUtils;
 import com.example.hemahotel.service.UserService;
@@ -45,6 +42,9 @@ public class UserServiceImpl  implements UserService {
     @Autowired
     private HotelRepository hotelRepository;
 
+    @Autowired
+    private VerificationRepository verificationRepository;
+
 
     private SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy/MM/dd/");
 
@@ -52,40 +52,74 @@ public class UserServiceImpl  implements UserService {
     @Value("${file.uploadUrl}")
     private String uploadPath;
 
+    /** 判断验证码是否过期：5分钟 */
+    public boolean verCodeInvalid(Timestamp createTime, Timestamp nowTime) {
+        SimpleDateFormat timeformat = new SimpleDateFormat("yyyy-MM-dd,HH:mm:ss");
+        long t1 = createTime.getTime();
+        long t2 = nowTime.getTime();
+        int hours=(int) ((t2 - t1)/(1000*60*60));
+        int minutes=(int) (((t2 - t1)/1000-hours*(60*60))/60);
+        if(minutes >= 5)
+            return true;
+        else
+            return false;
+    }
+
     /**用户注册*/
-    //TODO:手机验证码功能还未加入,默认verCode = 123456，verCodeId = 6;
     public ResponseUtils register(String telephone,String password,String verCode,Long verCodeId) {
 
-        if(verCode.equals("123456") && verCodeId == 6L) {
-            //如果该手机号已被注册，则不可以继续注册
-            if(userRepository.findByPhone(telephone).isPresent())
-                return ResponseUtils.response(404,"该手机号已被注册", jsonObject);
+        Optional<Verification> verification = verificationRepository.findById(verCodeId);
+        jsonObject = new JSONObject();
 
-            Timestamp createTime = new Timestamp(System.currentTimeMillis());
-            Timestamp updateTime = new Timestamp(System.currentTimeMillis());
-
-            String password_security = SecurityUtils.encodePassword(password);
-
-            User user = new User(telephone, password_security, telephone, 0, createTime, updateTime);
-            user.setIdentity(0);//identity = 0 :普通用户
-
-            userRepository.save(user);
-
-            Optional<User> u = userRepository.findByPhone(telephone);
-
-            //用户注册成功,返回token,前端进入登录状态
-            Map<String, String> map = new HashMap<>();
-            map.put("id",u.get().getId().toString());
-            map.put("phone",u.get().getPhone());
-            String Token = JWTUtils.getToken(map);
-
-            jsonObject = new JSONObject();
-            jsonObject.put("token",Token);
-
-            return ResponseUtils.response(200,"用户注册成功", jsonObject);
+        //用户没有点击获取验证码，前端传入的verCodeId = 0
+        if(!verification.isPresent()){
+            return ResponseUtils.response(401,"请获取验证码后再进行注册", jsonObject);
         }
+        //用户已获取验证码
         else{
-            return ResponseUtils.response(403,"验证码错误,请重新输入验证码", jsonObject);
+            if(verCodeInvalid(verification.get().getCreateTime(),new Timestamp(System.currentTimeMillis()))){
+                return ResponseUtils.response(402,"验证码过期，请重新获取验证码", jsonObject);
+            }
+            else{
+                //验证码错误
+                if(!verCode.equals(verification.get().getVerCode())){
+                    return ResponseUtils.response(403,"验证码错误，请重新输入验证码", jsonObject);
+                }
+                else{
+                    Optional<User> user1 = userRepository.findByPhone(telephone);
+
+                    boolean existsUser = user1.isPresent();
+                    //该手机号已被注册
+                    if (existsUser) {
+                        return ResponseUtils.response(404,"该手机号已被注册", jsonObject);
+                    }
+                    //验证码正确，手机号未注册，成功注册用户
+                    else {
+                        Timestamp createTime = new Timestamp(System.currentTimeMillis());
+                        Timestamp updateTime = new Timestamp(System.currentTimeMillis());
+
+                        String password_security = SecurityUtils.encodePassword(password);
+
+                        User user = new User(telephone, password_security, telephone, 0, createTime, updateTime);
+                        user.setIdentity(0);//identity = 0 :普通用户
+
+                        userRepository.save(user);
+
+                        Optional<User> u = userRepository.findByPhone(telephone);
+
+                        //用户注册成功,返回token,前端进入登录状态
+                        Map<String, String> map = new HashMap<>();
+                        map.put("id",u.get().getId().toString());
+                        map.put("phone",u.get().getPhone());
+                        String Token = JWTUtils.getToken(map);
+
+                        jsonObject.put("token",Token);
+
+                        return ResponseUtils.response(200,"用户注册成功", jsonObject);
+                    }
+                }
+
+            }
         }
     }
 
@@ -120,6 +154,56 @@ public class UserServiceImpl  implements UserService {
         }
         else{
                 return ResponseUtils.response(401,"用户并未注册账户，请注册后登录平台", jsonObject);
+        }
+    }
+
+    /** 用户登录(手机号 + 验证码） */
+    public ResponseUtils loginVerification(String Phone,String verCode,Long verCodeId){
+
+        Optional<Verification> verification = verificationRepository.findById(verCodeId);
+        jsonObject = new JSONObject();
+
+        //用户没有点击获取验证码，前端传入的verCodeId = 0
+        if(!verification.isPresent()){
+            return ResponseUtils.response(402,"请获取验证码后再进行登录", jsonObject);
+        }
+        //用户已获取验证码
+        else{
+            if(verCodeInvalid(verification.get().getCreateTime(),new Timestamp(System.currentTimeMillis()))){
+                return ResponseUtils.response(403,"验证码过期，请重新获取验证码", jsonObject);
+            }
+            else{
+                //验证码错误
+                if(!verCode.equals(verification.get().getVerCode())){
+                    return ResponseUtils.response(404,"验证码错误，请重新输入验证码", jsonObject);
+                }
+                else{
+                    Optional<User> user = userRepository.findByPhone(Phone);
+
+                    boolean existsUser = user.isPresent();
+                    //该手机号未被注册
+                    if (!existsUser) {
+                        return ResponseUtils.response(401,"该手机号未注册，请注册后登录", jsonObject);
+                    }
+                    //验证码正确，手机号已注册，成功登录
+                    else {
+                        Map<String, String> map = new HashMap<>();
+                        map.put("id",user.get().getId().toString());
+                        map.put("phone",user.get().getPhone());
+
+                        System.out.println(map);
+
+                        String Token = JWTUtils.getToken(map);
+
+                        jsonObject.put("token",Token);
+                        jsonObject.put("identity",user.get().getIdentity());
+
+                        log.info("用户登录成功,用户id[{}]",user.get().getId());
+                        return ResponseUtils.response(200,"用户登录成功", jsonObject);
+                    }
+                }
+
+            }
         }
     }
 

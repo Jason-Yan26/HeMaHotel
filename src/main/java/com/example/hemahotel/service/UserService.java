@@ -17,6 +17,10 @@ public interface UserService {
     /** 用户登录(手机号/邮箱 + 密码） */
     public ResponseUtils loginPassword(String teleEmail, String password);
 
+    /** 用户登录(手机号 + 验证码） */
+    public ResponseUtils loginVerification(String Phone,String verCode,Long verCodeId);
+
+
     /** 用户主页 */
     public ResponseUtils information(Long userId);
 

@@ -1,7 +1,6 @@
 package com.example.hemahotel.controller;
 
 import com.alibaba.fastjson.JSONObject;
-import com.aliyun.credentials.http.HttpRequest;
 import com.example.hemahotel.jwt.JWTUtils;
 import com.example.hemahotel.service.OrderService;
 import com.example.hemahotel.utils.ResponseUtils;

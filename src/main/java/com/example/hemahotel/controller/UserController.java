@@ -63,6 +63,17 @@ public class UserController {
         return userService.loginPassword(teleEmail,password);
     }
 
+    /**用户登录接口(手机号+短信验证码)*/
+    @PostMapping("/login/verfication")
+    public ResponseUtils loginVerification(@RequestBody JSONObject jsonObject) {
+
+        String phone = jsonObject.getString("phone");
+        String verCode = jsonObject.getString("verCode");
+        Long verCodeId = jsonObject.getLong("verCodeId");
+
+        return userService.loginVerification(phone,verCode,verCodeId);
+    }
+
     /**用户主页接口*/
     @PostMapping("/information")
     public ResponseUtils information(HttpServletRequest request) {
